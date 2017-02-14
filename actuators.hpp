@@ -41,45 +41,6 @@ class Actuator
 }
 //}}}
 
-//
-////{{{
-//class Radiator: Actuator
-//{
-//	inline void start_actuator(void)
-//	{
-//		// TODO start the Radiator
-//	}
-//	inline void stop_actuator(void)
-//	{
-//		// TODO stop the Radiator
-//	}
-//	public:
-//		Radiator(void)
-//		{
-//			// TODO initialise the radiators control pin
-//		}
-//}
-////}}}
-//
-////{{{
-//class Fan: Actuator
-//{
-//	inline void start_actuator(void)
-//	{
-//		// TODO start the Fan
-//	}
-//	inline void stop_actuator(void)
-//	{
-//		// TODO stop the Fan
-//	}
-//	public:
-//		Fan(void)
-//		{
-//			// TODO initialise the fans control pin
-//		}
-//}
-////}}}
-//
 
 //{{{ class Periodic_actuator
 
@@ -127,46 +88,6 @@ class Periodic_actuator: Actuator
 }
 //}}}
 
-//
-////{{{
-//class Pump: Periodic_actuator
-//{
-//	inline void start_actuator(void)
-//	{
-//		// TODO start the pump
-//	}
-//	inline void stop_actuator(void)
-//	{
-//		// TODO stop the pump
-//	}
-//
-//	public:
-//		Pump(uint32_t period, uint32_t duty_cycle) : Periodic_actuator(period, duty_cycle)
-//		{
-//			// TODO initialise the pumps control pin
-//		}
-//}
-////}}}
-//
-////{{{
-//class Illumination: Periodic_actuator
-//{
-//	inline void start_actuator(void)
-//	{
-//		// TODO start the LED panel
-//	}
-//	inline void stop_actuator(void)
-//	{
-//		// TODO stop the LED panel
-//	}
-//	public:
-//		Illumination(uint32_t period, uint32_t duty_cycle) : Periodic_actuator(period, duty_cycle)
-//		{
-//			// TODO initialise the LED panels control pin
-//		}
-//}
-////}}}
-//
 
 
 #endif /* ACTUATORS_HPP */

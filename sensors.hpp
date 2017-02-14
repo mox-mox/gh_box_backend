@@ -4,16 +4,21 @@
 #include "config.hpp"
 #include "actuators.hpp"
 
-//{{{ Abstract
+//{{{ class Sensor
+
+template<uint8_t sensing_pin>
 class Sensor
 {
 	uint32_t value = 0;
 	uint32_t sampling_period;
-	uint32_t sampling_time;
-	virtual uint32_t measure(void) = 0;
-	virtual void measure(uint32_t measure) = 0;
+	uint32_t sampling_time = 0;
+	virtual uint32_t measure(void) const
+	{
+		analogRead(sensing_pin)
+	}
+	virtual void process(uint32_t measure) = 0;
 	public:
-		virtual Sensor(uint32_t sampling_period) : sampling_period(sampling_period), sampling_time(millis()) {}
+		Sensor(uint32_t sampling_period) : sampling_period(sampling_period) {}
 		void set_period(uint32_t period)
 		{
 			sampling_period = period;
@@ -22,8 +27,6 @@ class Sensor
 		{
 			return sampling_period;
 		}
-
-		virtual uint32_t get_value(void) const = 0;
 
 		virtual void operator()(const uint32_t current_time)
 		{
@@ -35,15 +38,21 @@ class Sensor
 }
 //}}}
 
-//{{{
+//{{{ class Temp_sensor
+
+template<uint8_t sensing_pin, uint8_t radiator_pin, uint8_t fan_pin>
 class Temp_sensor: Sensor
 {
-	Actuator<RADIATOR_PIN> radiator;
-	Actuator<FAN_PIN> fan;
+	uint32_t nominal_temperature;
+	uint32_t temperature_plus_margin;
+	uint32_t temperature_minus_margin;
+
+	Actuator<radiator_pin> radiator;
+	Actuator<fan_pin> fan;
 
 	// Some stuff like an array for low-pass filtering, etc.
 
-	uint32_t measure(void)
+	uint32_t measure(void) const override  // The temperature sensor is measured differently
 	{
 		// TODO Do something
 	}
@@ -51,61 +60,72 @@ class Temp_sensor: Sensor
 	void process(uint32_t measure)
 	{
 		// TODO filter
+		// if it is too warm
+		// fan.start()
 	}
 
 	public:
-		uint32_t get_value(void) const
+		Temp_sensor(uint32_t sampling_period, uint32_t nominal_temperature, uint32_t temperature_plus_margin=0, uint32_t temperature_minus_margin=0) :
+			Sensor(sampling_period),
+			nominal_temperature(nominal_temperature),
+			temperature_plus_margin(temperature_plus_margin?temperature_plus_margin:100),
+			temperature_minus_margin(temperature_minus_margin?temperature_minus_margin:(temperature_plus_margin?temperature_plus_margin:100))
+			{}
+
+		void set_nominal_temperature(uint32_t temperature)
 		{
-			return value;
+			nominal_temperature = temperature;
+		}
+		void set_plus_margin(uint32_t margin)
+		{
+			temperature_plus_margin = margin;
+		}
+		void set_minus_margin(uint32_t margin)
+		{
+			temperature_minus_margin = margin;
+		}
+
+		uint32_t get_nominal_temperature(void)
+		{
+			return nominal_temperature;
+		}
+		uint32_t get_plus_margin(void)
+		{
+			return temperature_plus_margin;
+		}
+		uint32_t get_minus_margin(void)
+		{
+			return temperature_minus_margin;
 		}
 }
 //}}}
 
-//{{{
+//{{{ class PH_sensor
+
+template<uint8_t sensing_pin>
 class PH_sensor: Sensor
 {
 	// Some stuff like an array for low-pass filtering, etc.
 
-	uint32_t measure(void)
-	{
-		// TODO Do something
-	}
-
 	void process(uint32_t measure)
 	{
 		// TODO filter
 	}
-
-	public:
-
-		uint32_t get_value(void) const
-		{
-			return value;
-		}
 }
 //}}}
 
-//{{{
+//{{{ class EC_sensor
+
+template<uint8_t sensing_pin>
 class EC_sensor: Sensor
 {
 	// Some stuff like an array for low-pass filtering, etc.
 
-	uint32_t measure(void)
-	{
-		// TODO Do something
-	}
-
 	void process(uint32_t measure)
 	{
 		// TODO filter
 	}
 
-	public:
-
-		uint32_t get_value(void) const
-		{
-			return value;
-		}
 }
 //}}}
 
