@@ -16,10 +16,24 @@ void loop(void)
 	uint32_t current_time = millis();
 
 
-	temp();
+	// Read the sensors
+	temp(); // Temperature sensor will also controll the radiator and fan
 	ph();
 	ec();
 
+	// See if we need to turn on the water pump or the lamp
 	pump();
 	lamp();
+
+	// Send a status update to the mathership
+	communicate();
+}
+
+
+void serialEvent()
+{
+	while(Serial.available())
+	{
+		char inChar = (char)Serial.read();
+	}
 }

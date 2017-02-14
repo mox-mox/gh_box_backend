@@ -38,7 +38,7 @@ class Actuator
 		{
 			return is_pumping;
 		}
-}
+};
 //}}}
 
 
@@ -85,7 +85,7 @@ class Periodic_actuator: Actuator
 		{
 			return duty_cycle;
 		}
-}
+};
 //}}}
 
 

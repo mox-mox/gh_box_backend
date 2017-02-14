@@ -35,7 +35,7 @@ class Sensor
 				process(measure());
 			}
 		}
-}
+};
 //}}}
 
 //{{{ class Temp_sensor
@@ -97,7 +97,41 @@ class Temp_sensor: Sensor
 		{
 			return temperature_minus_margin;
 		}
-}
+};
+//}}}
+
+
+//{{{ class EC_sensor
+
+template<uint8_t sensing_pin>
+class EC_sensor: Sensor
+{
+	// If we titrate the water, we'll add electrolytes.
+	// Let's track their amount as a current offset
+	// Static because offset will be the same for all sensors
+	static int32_t current_offset=0;
+
+	// Some stuff like an array for low-pass filtering, etc.
+
+	void process(uint32_t measure)
+	{
+		// TODO filter
+	}
+	public:
+		static void add_offset(int32_t offset)
+		{
+			current_offset += offset;
+		}
+
+		static void set_offset(int32_t offset)
+		{
+			current_offset = offset;
+		}
+		static int32_t set_offset(void)
+		{
+			return current_offset;
+		}
+};
 //}}}
 
 //{{{ class PH_sensor
@@ -110,23 +144,12 @@ class PH_sensor: Sensor
 	void process(uint32_t measure)
 	{
 		// TODO filter
+		// if there is a change, inform the EC sensor of the offset
+		// EC_sensor::add_offset(xxx);
 	}
-}
+};
 //}}}
 
-//{{{ class EC_sensor
 
-template<uint8_t sensing_pin>
-class EC_sensor: Sensor
-{
-	// Some stuff like an array for low-pass filtering, etc.
-
-	void process(uint32_t measure)
-	{
-		// TODO filter
-	}
-
-}
-//}}}
 
 #endif /* SENSORS_HPP */
