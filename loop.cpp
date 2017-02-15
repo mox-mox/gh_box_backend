@@ -7,7 +7,9 @@ Periodic_actuator<LAMP_PIN>                        pump(LAMP_PERIOD, LAMP_DUTY_C
 
 PH_sensor<PH_PIN>                                  ph(SAMPLING_PERIOD_PH);
 EC_sensor<EC_PIN>                                  ec(SAMPLING_PERIOD_EC);
-Temp_sensor<TEMP_PIN, HEATER_PIN, FAN_PIN>       temp(SAMPLING_PERIOD_TEMP, NOMINAL_TEMP, TEMP_MARGIN);
+Temp_sensor<TEMP_PIN, HEATER_PIN, FAN_PIN>         temp(SAMPLING_PERIOD_TEMP, NOMINAL_TEMP, TEMP_MARGIN);
+
+Message                                            communicate;
 
 
 void loop(void)
@@ -25,15 +27,10 @@ void loop(void)
 	pump();
 	lamp();
 
-	// Send a status update to the mathership
-	communicate();
 }
 
 
 void serialEvent()
 {
-	while(Serial.available())
-	{
-		char inChar = (char)Serial.read();
-	}
+	communicate();
 }

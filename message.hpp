@@ -5,7 +5,7 @@
 
 
 
-class Message_Interface
+class Message_interface
 {
 	using crc_sum = uint8_t;
 	constexpr send_retries = 3;
@@ -56,30 +56,15 @@ class Message_Interface
 		crc_sum crc;
 	}  __attribute__((packed));
 	//}}}
+	
 
-	//{{{
-	uint32_t get_uint32_t(void)
-	{
-		uint32_t retval = 0;
-		//while(Serial.available() < sizeof(retval));
-		retval |= (static_cast<uint32_t>(Serial.read()))<<24;
-		retval |= (static_cast<uint32_t>(Serial.read()))<<16;
-		retval |= (static_cast<uint32_t>(Serial.read()))<< 8;
-		retval |= (static_cast<uint32_t>(Serial.read()))<< 0;
-		return retval;
-	}
-	//}}}
+	virtual uint8_t get_uint8_t(void) = 0;
 
-	//{{{ TODO abstract
-	virtual void transmit_message(const message& msg) // must always succeed
-	{
-		size_t n = 0;
-		while(n<sizeof(msg))	// Busy-loop until all data is force-fed into the UART
-		{
-			n += Serial.write(reinterpret_cast<const uint8_t*>(&msg) + n, sizeof(msg) - n)
-		}
-	}
-	//}}}
+	virtual uint32_t get_uint32_t(void) = 0;
+
+	virtual void transmit_message(const message& msg) = 0; // must always succeed
+
+	virtual uint8_t bytes_available(void) = 0;
 
 	//{{{
 	uint8_t send_ack(command cmd)
@@ -100,17 +85,17 @@ class Message_Interface
 	//{{{
 	inline bool get_ack(command expected_cmd)
 	{
-		while(Serial.available() < sizeof(message));
-		command cmd = Serial.read();
+		while(bytes_available() < sizeof(message));
+		command cmd = get_uint8_t();
 		switch(cmd)
 		{
 			case command::ack:
 				(void) get_uint32_t(); // clear the data part
-				return Serial.read() == ack_crc;
+				return get_uint8_t() == ack_crc;
 				break;
 			case command::nack:
 				(void) get_uint32_t(); // clear the data part
-				(void) Serial.read();  // clear the crc part
+				(void) get_uint8_t();  // clear the crc part
 				break;
 			default:
 				assert(false); // TODO: Better error handling
@@ -136,25 +121,60 @@ class Message_Interface
 	//{{{
 	uint32_t get_data(command expected_cmd)
 	{
-		while(Serial.available() < sizeof(message));
+		while(bytes_available() < sizeof(message));
 		message msg;
 		//uint32_t retval;
 		uint8_t i=send_retries;
 		do	// Read up to send_retries times until the command and crc are correct
 		{	// On match send ACK, else send NACK
-			msg.cmd = Serial.read();
+			msg.cmd = get_uint8_t();
 			msg.data = get_uint32_t();
-			msg.crc = Serial.read();
+			msg.crc = get_uint8_t();
 		} while((msg.cmd != expected_cmd || msg.crc != calc_src(msg.cmd, msg.data) || send_ack()) && send_nack() && --i)
 
 		return i?msg.data:-1;
 	}
 	//}}}
 
+};
+
+
+//{{{ class Message
+#ifdef RASPI
+
+class Message : Message_interface
+{
+	//{{{
+	inline uint8_t get_uint8_t(void) override
+	{
+		return // TODO
+	}
+	//}}}
+	//{{{
+	uint32_t get_uint32_t(void) override
+	{
+		return // TODO
+	}
+	//}}}
+	//{{{
+	void transmit_message(const message& msg) override // must always succeed
+	{
+		// TODO
+	}
+	//}}}
+	//{{{
+	inline uint8_t bytes_available(void) override
+	{
+		return // TODO
+	}
+	//}}}
+
+
 	public:
 
+
+
 	//{{{
-#ifdef RASPI
 	//{{{
 	uint32_t get_temperature(void)
 	{
@@ -278,17 +298,61 @@ class Message_Interface
 		return send_message(command::set_pump_duty_cycle, duty_cycle);
 	}
 	//}}}
+	//}}}
+}
 #endif
+//}}}
+
+
+//{{{ class Message
+#ifdef ARDUINO
+
+class Message : Message_interface
+{
+	//{{{
+	inline uint8_t get_uint8_t(void) override
+	{
+		return Serial.read();
+	}
+	//}}}
+	//{{{
+	uint32_t get_uint32_t(void) override
+	{
+		uint32_t retval = 0;
+		//while(bytes_available() < sizeof(retval));
+		retval |= (static_cast<uint32_t>(get_uint8_t()))<<24;
+		retval |= (static_cast<uint32_t>(get_uint8_t()))<<16;
+		retval |= (static_cast<uint32_t>(get_uint8_t()))<< 8;
+		retval |= (static_cast<uint32_t>(get_uint8_t()))<< 0;
+		return retval;
+	}
+	//}}}
+	//{{{
+	void transmit_message(const message& msg) override // must always succeed
+	{
+		size_t n = 0;
+		while(n<sizeof(msg))	// Busy-loop until all data is force-fed into the UART
+		{
+			n += Serial.write(reinterpret_cast<const uint8_t*>(&msg) + n, sizeof(msg) - n)
+		}
+	}
+	//}}}
+	//{{{
+	inline uint8_t bytes_available(void) override
+	{
+		return Serial.available();
+	}
 	//}}}
 
-	//{{{
-#ifdef ARDUINO
+	public:
+
+
 	//{{{
 	void operator()(void)
 	{
-		while(Serial.available() > sizeof(message))
+		while(bytes_available() > sizeof(message))
 		{
-			message msg = { Serial.read(), get_uint32_t(), Serial.read(), };
+			message msg = { get_uint8_t(), get_uint32_t(), get_uint8_t(), };
 			if(msg.crc != calc_src(cmd, retval) && send_nack())
 			{
 				continue
@@ -366,9 +430,7 @@ class Message_Interface
 		}
 	}
 	//}}}
+}
 #endif
-	//}}}
-
-
-};
+//}}}
 

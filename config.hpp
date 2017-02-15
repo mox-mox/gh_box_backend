@@ -34,8 +34,10 @@
 extern Periodic_actuator<PUMP_PIN>                        pump;
 extern Periodic_actuator<LAMP_PIN>                        pump;
 
-extern Temp_sensor<TEMP_PIN, HEATER_PIN, FAN_PIN>       temp;
+extern Temp_sensor<TEMP_PIN, HEATER_PIN, FAN_PIN>         temp;
 extern PH_sensor<PH_PIN>                                  ph;
 extern EC_sensor<EC_PIN>                                  ec;
+
+extern Message                                            communicate;
 
 #endif /* CONFIG_HPP */
