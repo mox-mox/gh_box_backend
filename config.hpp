@@ -3,7 +3,7 @@
 
 
 // The pins
-#define RADIATOR_PIN
+#define HEATER_PIN
 #define FAN_PIN
 #define ILLUMINATION_PIN
 #define PUMP_PIN
@@ -14,12 +14,9 @@
 
 
 // Default times, all in milliseconds
-#define SAMPLING_PERIOD_TEMP_SLOW    500
-#define SAMPLING_PERIOD_PH_SLOW      500
-#define SAMPLING_PERIOD_EC_SLOW      500
-#define SAMPLING_PERIOD_TEMP_fast    50
-#define SAMPLING_PERIOD_PH_fast      50
-#define SAMPLING_PERIOD_EC_fast      50
+#define SAMPLING_PERIOD_TEMP         500
+#define SAMPLING_PERIOD_PH           500
+#define SAMPLING_PERIOD_EC           500
 
 #define PUMP_PERIOD                  15*60*1000
 #define PUMP_DUTY_CYCLE              1*60*1000
@@ -34,5 +31,11 @@
 #define TEMP_MARGIN                  5*10
 
 
+extern Periodic_actuator<PUMP_PIN>                        pump;
+extern Periodic_actuator<LAMP_PIN>                        pump;
+
+extern Temp_sensor<TEMP_PIN, HEATER_PIN, FAN_PIN>       temp;
+extern PH_sensor<PH_PIN>                                  ph;
+extern EC_sensor<EC_PIN>                                  ec;
 
 #endif /* CONFIG_HPP */

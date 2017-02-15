@@ -19,6 +19,10 @@ class Sensor
 	virtual void process(uint32_t measure) = 0;
 	public:
 		Sensor(uint32_t sampling_period) : sampling_period(sampling_period) {}
+		uint32_t get_value(void)
+		{
+			return value;
+		}
 		void set_period(uint32_t period)
 		{
 			sampling_period = period;
@@ -40,15 +44,13 @@ class Sensor
 
 //{{{ class Temp_sensor
 
-template<uint8_t sensing_pin, uint8_t radiator_pin, uint8_t fan_pin>
+template<uint8_t sensing_pin, uint8_t heater_pin, uint8_t fan_pin>
 class Temp_sensor: Sensor
 {
 	uint32_t nominal_temperature;
 	uint32_t temperature_plus_margin;
 	uint32_t temperature_minus_margin;
 
-	Actuator<radiator_pin> radiator;
-	Actuator<fan_pin> fan;
 
 	// Some stuff like an array for low-pass filtering, etc.
 
@@ -65,6 +67,9 @@ class Temp_sensor: Sensor
 	}
 
 	public:
+		Actuator<heater_pin> heater;
+		Actuator<fan_pin> fan;
+
 		Temp_sensor(uint32_t sampling_period, uint32_t nominal_temperature, uint32_t temperature_plus_margin=0, uint32_t temperature_minus_margin=0) :
 			Sensor(sampling_period),
 			nominal_temperature(nominal_temperature),
@@ -122,12 +127,11 @@ class EC_sensor: Sensor
 		{
 			current_offset += offset;
 		}
-
 		static void set_offset(int32_t offset)
 		{
 			current_offset = offset;
 		}
-		static int32_t set_offset(void)
+		static int32_t get_offset(void)
 		{
 			return current_offset;
 		}
