@@ -1,6 +1,9 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
+//#include "sensors.hpp"
+//#include "actuators.hpp"
+//#include "message.hpp"
 
 // The pins
 #define HEATER_PIN
@@ -31,13 +34,13 @@
 #define TEMP_MARGIN                  5*10
 
 
-extern Periodic_actuator<PUMP_PIN>                        pump;
-extern Periodic_actuator<LAMP_PIN>                        pump;
-
-extern Temp_sensor<TEMP_PIN, HEATER_PIN, FAN_PIN>         temp;
-extern PH_sensor<PH_PIN>                                  ph;
-extern EC_sensor<EC_PIN>                                  ec;
-
-extern Message                                            communicate;
+//extern Periodic_actuator<PUMP_PIN>                        pump;
+//extern Periodic_actuator<LAMP_PIN>                        lamp;
+//
+//extern Temp_sensor<TEMP_PIN, HEATER_PIN, FAN_PIN>         temp;
+//extern PH_sensor<PH_PIN>                                  ph;
+//extern EC_sensor<EC_PIN>                                  ec;
+//
+//extern Message                                            communicate;
 
 #endif /* CONFIG_HPP */
