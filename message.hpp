@@ -90,7 +90,7 @@ class Message_interface
 		virtual uint8_t bytes_available(void) = 0;
 
 		//{{{
-		uint8_t send_ack(command cmd)
+		uint8_t send_ack(void)
 		{
 			transmit_message({command::ack, void_data, ack_crc});
 			return 0;	// the return value is for compound logic magic
@@ -98,7 +98,7 @@ class Message_interface
 		//}}}
 
 		//{{{
-		uint8_t send_nack(command cmd)
+		uint8_t send_nack(void)
 		{
 			transmit_message({command::nack, void_data, nack_crc});
 			return 1;	// the return value is for compound logic magic
@@ -154,7 +154,7 @@ class Message_interface
 				msg.cmd = static_cast < command > (get_uint8_t());
 				msg.data = get_uint32_t();
 				msg.crc = get_uint8_t();
-			} while((msg.cmd != expected_cmd || msg.crc != calc_crc(msg.cmd, msg.data) || send_ack(msg.cmd)) && send_nack(msg.cmd) && --i);
+			} while((msg.cmd != expected_cmd || msg.crc != calc_crc(msg.cmd, msg.data) || send_ack()) && send_nack() && --i);
 
 			return i?msg.data:-1;
 		}
@@ -374,11 +374,11 @@ class Message : public Message_interface
 		while(bytes_available() > sizeof(message))
 		{
 			message msg(static_cast<command>(get_uint8_t()), get_uint32_t(), get_uint8_t());
-			if(msg.crc != calc_crc(msg.cmd, msg.data) && send_nack(msg.cmd))
+			if(msg.crc != calc_crc(msg.cmd, msg.data) && send_nack())
 			{
 				continue;
 			}
-			send_ack(msg.cmd);
+			send_ack();
 			switch(msg.cmd)
 			{
 				//{{{ Getters
