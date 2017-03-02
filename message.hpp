@@ -5,6 +5,11 @@
 #include "config.hpp"
 #endif
 
+#ifdef __linux__
+#include <cstdint>
+#include <cstddef>
+#endif
+
 // Format:
 //
 //     |  cmd   | data[0]| data[1]| data[2]| data[3]|  crc   |
@@ -16,144 +21,144 @@ class Message_interface
 {
 	using crc_sum = uint8_t;
 	static constexpr uint8_t send_retries = 3;
-	static constexpr crc_sum ack_crc = 0; // TODO
-	static constexpr crc_sum nack_crc = 0; // TODO
-
-
 	protected:
-	//{{{
-	enum class command : uint8_t
-	{
-		// Miscellaneous commands
-		ack                          =   0,	// |  ACK   |  zero  |  zero  |  zero  |  zero  |  crc   |
-		nack                         = 255,	// |  NACK  |  zero  |  zero  |  zero  |  zero  |  crc   |
+		static constexpr uint32_t void_data = 0;
+		static constexpr crc_sum ack_crc = 0; // TODO
+		static constexpr crc_sum nack_crc = 0; // TODO
 
-		// Getters: 	// get_temperature|NULL -> Arduino =======> get_temperature|VALUE -> Pi
-		get_temperature              =  10,
-		get_fan_status               =  11,
-		get_heater_status            =  12,
-		get_ph                       =  20,
-		get_ec                       =  30,
-		get_ec_offset                =  31,
-		get_lamp_status              =  40,
-		get_pump_status              =  50,
 
-		// Setters
-		// Temperature				// set_pump_period|PERIOD -> Arduino
-		set_temp_sensor_period       = 110,
-		set_nominal_temperature      = 113,
-		set_temperature_margin_plus  = 114,
-		set_temperature_margin_minus = 115,
-		// PH sensor commands
-		set_ph_sensor_period         = 120,
-		// EC sensor commands
-		set_ec_sensor_period         = 130,
-		set_ec_offset                = 131,
-		add_ec_offset                = 132,
-		// Lamp commands
-		set_lamp_period              = 140,
-		set_lamp_duty_cycle          = 141,
-		// Pump commands
-		set_pump_period              = 150,
-		set_pump_duty_cycle          = 151,
-	};
-	//}}}
-
-	//{{{
-	struct message
-	{
-		command cmd;
-		uint32_t data;
-		crc_sum crc;
-		message(command cmd, uint32_t data, crc_sum crc) : cmd(cmd), data(data), crc(crc) {}
-		message() = default;
-	}  __attribute__((packed));
-	//}}}
-
-	crc_sum calc_crc(command cmd, uint32_t data)
-	{
-		return 0; // TODO actual implementation
-	}
-
-	virtual uint8_t get_uint8_t(void) = 0;
-
-	virtual uint32_t get_uint32_t(void) = 0;
-
-	virtual void transmit_message(const message& msg) = 0; // must always succeed
-
-	virtual uint8_t bytes_available(void) = 0;
-
-	//{{{
-	uint8_t send_ack(command cmd)
-	{
-		transmit_message({command::ack, NULL, ack_crc});
-		return 0;	// the return value is for compound logic magic
-	}
-	//}}}
-
-	//{{{
-	uint8_t send_nack(command cmd)
-	{
-		transmit_message({command::nack, NULL, nack_crc});
-		return 1;	// the return value is for compound logic magic
-	}
-	//}}}
-
-	//{{{
-	inline bool get_ack(command expected_cmd)
-	{
-		while(bytes_available() < sizeof(message));
-		command cmd = static_cast<command>(get_uint8_t());
-		switch(cmd)
+		//{{{
+		enum class command : uint8_t
 		{
-			case command::ack:
-				(void) get_uint32_t(); // clear the data part
-				return get_uint8_t() == ack_crc;
-				break;
-			case command::nack:
-				(void) get_uint32_t(); // clear the data part
-				(void) get_uint8_t();  // clear the crc part
-				break;
-			//default:
-				//assert(false); // TODO: Better error handling
+			// Miscellaneous commands
+			ack                          =   0,	// |  ACK   |  zero  |  zero  |  zero  |  zero  |  crc   |
+			nack                         = 255,	// |  NACK  |  zero  |  zero  |  zero  |  zero  |  crc   |
+
+			// Getters: 	// get_temperature|NULL -> Arduino =======> get_temperature|VALUE -> Pi
+			get_temperature              =  10,
+			get_fan_status               =  11,
+			get_heater_status            =  12,
+			get_ph                       =  20,
+			get_ec                       =  30,
+			get_ec_offset                =  31,
+			get_lamp_status              =  40,
+			get_pump_status              =  50,
+
+			// Setters
+			// Temperature				// set_pump_period|PERIOD -> Arduino
+			set_temp_sensor_period       = 110,
+			set_nominal_temperature      = 113,
+			set_temperature_margin_plus  = 114,
+			set_temperature_margin_minus = 115,
+			// PH sensor commands
+			set_ph_sensor_period         = 120,
+			// EC sensor commands
+			set_ec_sensor_period         = 130,
+			set_ec_offset                = 131,
+			add_ec_offset                = 132,
+			// Lamp commands
+			set_lamp_period              = 140,
+			set_lamp_duty_cycle          = 141,
+			// Pump commands
+			set_pump_period              = 150,
+			set_pump_duty_cycle          = 151,
+		};
+		//}}}
+
+		//{{{
+		struct message
+		{
+			command cmd;
+			uint32_t data;
+			crc_sum crc;
+			message(command cmd, uint32_t data, crc_sum crc) : cmd(cmd), data(data), crc(crc) {}
+			message() = default;
+		}  __attribute__((packed));
+		//}}}
+
+		crc_sum calc_crc(command cmd, uint32_t data)
+		{
+			return 0; // TODO actual implementation
 		}
-		return false;
-	}
-	//}}}
 
-	//{{{
-	bool send_message(command cmd, uint32_t data)
-	{
-		//message msg = { cmd, data, calc_crc(cmd_data) };
-		message msg(cmd, data, calc_crc(cmd, data));
-		uint8_t i=send_retries;
-		do // transmit up to send_retries times until we get an ACK
+		virtual uint8_t get_uint8_t(void) = 0;
+
+		virtual uint32_t get_uint32_t(void) = 0;
+
+		virtual void transmit_message(const message& msg) = 0; // must always succeed
+
+		virtual uint8_t bytes_available(void) = 0;
+
+		//{{{
+		uint8_t send_ack(command cmd)
 		{
-			transmit_message(msg);
-		} while(!get_ack(cmd) && --i);
+			transmit_message({command::ack, void_data, ack_crc});
+			return 0;	// the return value is for compound logic magic
+		}
+		//}}}
 
-		return i;
-	}
-	//}}}
+		//{{{
+		uint8_t send_nack(command cmd)
+		{
+			transmit_message({command::nack, void_data, nack_crc});
+			return 1;	// the return value is for compound logic magic
+		}
+		//}}}
 
-	//{{{
-	uint32_t get_data(command expected_cmd)
-	{
-		while(bytes_available() < sizeof(message));
-		message msg;
-		//uint32_t retval;
-		uint8_t i=send_retries;
-		do	// Read up to send_retries times until the command and crc are correct
-		{	// On match send ACK, else send NACK
-			msg.cmd = static_cast < command > (get_uint8_t());
-			msg.data = get_uint32_t();
-			msg.crc = get_uint8_t();
-		} while((msg.cmd != expected_cmd || msg.crc != calc_crc(msg.cmd, msg.data) || send_ack(msg.cmd)) && send_nack(msg.cmd) && --i);
+		//{{{
+		inline bool get_ack(command expected_cmd)
+		{
+			while(bytes_available() < sizeof(message));
+			command cmd = static_cast<command>(get_uint8_t());
+			switch(cmd)
+			{
+				case command::ack:
+					(void) get_uint32_t(); // clear the data part
+					return get_uint8_t() == ack_crc;
+					break;
+				case command::nack:
+					(void) get_uint32_t(); // clear the data part
+					(void) get_uint8_t();  // clear the crc part
+					break;
+				//default:
+					//assert(false); // TODO: Better error handling
+			}
+			return false;
+		}
+		//}}}
 
-		return i?msg.data:-1;
-	}
-	//}}}
+		//{{{
+		bool send_message(command cmd, uint32_t data)
+		{
+			//message msg = { cmd, data, calc_crc(cmd_data) };
+			message msg(cmd, data, calc_crc(cmd, data));
+			uint8_t i=send_retries;
+			do // transmit up to send_retries times until we get an ACK
+			{
+				transmit_message(msg);
+			} while(!get_ack(cmd) && --i);
 
+			return i;
+		}
+		//}}}
+
+		//{{{
+		uint32_t get_data(command expected_cmd)
+		{
+			while(bytes_available() < sizeof(message));
+			message msg;
+			//uint32_t retval;
+			uint8_t i=send_retries;
+			do	// Read up to send_retries times until the command and crc are correct
+			{	// On match send ACK, else send NACK
+				msg.cmd = static_cast < command > (get_uint8_t());
+				msg.data = get_uint32_t();
+				msg.crc = get_uint8_t();
+			} while((msg.cmd != expected_cmd || msg.crc != calc_crc(msg.cmd, msg.data) || send_ack(msg.cmd)) && send_nack(msg.cmd) && --i);
+
+			return i?msg.data:-1;
+		}
+		//}}}
 };
 //}}}
 
@@ -166,13 +171,13 @@ class Message : Message_interface
 	//{{{
 	inline uint8_t get_uint8_t(void) override
 	{
-		return // TODO
+		return 0;// TODO
 	}
 	//}}}
 	//{{{
 	uint32_t get_uint32_t(void) override
 	{
-		return // TODO
+		return 0;// TODO
 	}
 	//}}}
 	//{{{
@@ -184,7 +189,7 @@ class Message : Message_interface
 	//{{{
 	inline uint8_t bytes_available(void) override
 	{
-		return // TODO
+		return 0;// TODO
 	}
 	//}}}
 
@@ -193,56 +198,56 @@ class Message : Message_interface
 	//{{{
 	uint32_t get_temperature(void)
 	{
-		if(send_message(command::get_temperature, NULL)) return -1;
+		if(send_message(command::get_temperature, void_data)) return -1;
 		return get_data(command::get_temperature);
 	}
 	//}}}
 	//{{{
 	uint32_t get_fan_status(void)
 	{
-		if(send_message(command::get_fan_status, NULL)) return -1;
+		if(send_message(command::get_fan_status, void_data)) return -1;
 		return get_data(command::get_fan_status);
 	}
 	//}}}
 	//{{{
 	uint32_t get_heater_status(void)
 	{
-		if(send_message(command::get_heater_status, NULL)) return -1;
+		if(send_message(command::get_heater_status, void_data)) return -1;
 		return get_data(command::get_heater_status);
 	}
 	//}}}
 	//{{{
 	uint32_t get_ph(void)
 	{
-		if(send_message(command::get_ph, NULL)) return -1;
+		if(send_message(command::get_ph, void_data)) return -1;
 		return get_data(command::get_ph);
 	}
 	//}}}
 	//{{{
 	uint32_t get_ec(void)
 	{
-		if(send_message(command::get_ec, NULL)) return -1;
+		if(send_message(command::get_ec, void_data)) return -1;
 		return get_data(command::get_ec);
 	}
 	//}}}
 	//{{{
 	uint32_t get_ec_offset(void)
 	{
-		if(send_message(command::get_ec_offset, NULL)) return -1;
+		if(send_message(command::get_ec_offset, void_data)) return -1;
 		return get_data(command::get_ec_offset);
 	}
 	//}}}
 	//{{{
 	uint32_t get_lamp_status(void)
 	{
-		if(send_message(command::get_lamp_status, NULL)) return -1;
+		if(send_message(command::get_lamp_status, void_data)) return -1;
 		return get_data(command::get_lamp_status);
 	}
 	//}}}
 	//{{{
 	uint32_t get_pump_status(void)
 	{
-		if(send_message(command::get_pump_status, NULL)) return -1;
+		if(send_message(command::get_pump_status, void_data)) return -1;
 		return get_data(command::get_pump_status);
 	}
 	//}}}
@@ -314,7 +319,7 @@ class Message : Message_interface
 	}
 	//}}}
 	//}}}
-}
+};
 #endif
 //}}}
 
