@@ -3,89 +3,170 @@
 
 #include "config.hpp"
 
-//{{{ class Actuator
+//{{{ class Sensor
 
-class Actuator
+class Sensor
 {
-	uint8_t control_pin;
-	bool running = false;
-
+	uint8_t sensing_pin;
+	uint32_t sampling_period;
+	uint32_t sampling_time = 0;
+	virtual uint32_t measure(void) const // Return the current sensor read out
+	{
+		return analogRead(sensing_pin);
+	}
+	virtual void process(uint32_t measure) = 0; // Do filtering on the sensor value and store it
 	protected:
-		inline void start_actuator(void)
-		{
-			digitalWrite(control_pin, 1);
-		}
-		inline void stop_actuator(void)
-		{
-			digitalWrite(control_pin, 0);
-		}
+		uint32_t value = 0;
 
 	public:
-		Actuator(uint8_t control_pin) : control_pin(control_pin) {}
-
-		virtual void start(void)
+		virtual Sensor(uint8_t sensing_pin, uint32_t sampling_period) : sensing_pin(sensing_pin), sampling_period(sampling_period) {}
+		uint32_t get_value(void)
 		{
-			//start_time = millis();
-			running = true;
-			start_actuator();
+			return value;
 		}
-
-		virtual void stop(void)
+		void set_period(uint32_t period)
 		{
-			stop_actuator();
-			running = false;
+			sampling_period = period;
 		}
-
-		inline bool is_running(void)
+		uint32_t get_period(void)
 		{
-			return running;
-		}
-};
-//}}}
-
-
-//{{{ class Periodic_actuator
-
-class Periodic_actuator : public Actuator
-{
-	uint32_t start_time = 0;
-
-	uint32_t period;
-	uint32_t duty_cycle;
-
-	public:
-		Periodic_actuator(uint8_t control_pin, uint32_t period, uint32_t duty_cycle) : Actuator(control_pin), period(period), duty_cycle(duty_cycle)
-		{
-			if( duty_cycle > period )
-			{
-				// TODO Send some error message
-			}
-			start();
+			return sampling_period;
 		}
 
 		virtual void operator()(const uint32_t current_time)
 		{
-			if(!is_running() && (start_time+period     <= current_time)) start_actuator();
-			if( is_running() && (start_time+duty_cycle >= current_time)) stop_actuator();
+			if( sampling_time+sampling_period <= current_time )
+			{
+				process(measure());
+			}
+		}
+};
+//}}}
+
+//{{{ class Temp_sensor
+
+class Temp_sensor: public Sensor
+{
+	uint32_t nominal_temperature;
+	uint32_t temperature_plus_margin;
+	uint32_t temperature_minus_margin;
+
+
+	// Some stuff like an array for low-pass filtering, etc.
+
+	uint32_t measure(void) const override  // The temperature sensor is measured differently
+	{
+		// TODO Read out the temperature sensor
+		return 5;
+	}
+
+	void process(uint32_t measure)
+	{
+		uint32_t measured = measure();
+		// TODO filter
+		// if it is too warm
+		// fan.start()
+		value = measured;
+	}
+
+	public:
+		Actuator heater;
+		Actuator fan;
+
+		Temp_sensor(uint8_t sensing_pin,
+		            uint8_t heater_pin,
+		            uint8_t fan_pin,
+		            uint32_t sampling_period,
+                    uint32_t nominal_temperature,
+                    uint32_t temperature_plus_margin=0,
+                    uint32_t temperature_minus_margin=0) :
+			Sensor(sensing_pin, sampling_period),
+			nominal_temperature(nominal_temperature),
+			temperature_plus_margin(temperature_plus_margin?temperature_plus_margin:100),
+			temperature_minus_margin(temperature_minus_margin?temperature_minus_margin:(temperature_plus_margin?temperature_plus_margin:100)),
+			heater(heater_pin),
+			fan(fan_pin)
+			{}
+
+		void set_nominal_temperature(uint32_t temperature)
+		{
+			nominal_temperature = temperature;
+		}
+		void set_plus_margin(uint32_t margin)
+		{
+			temperature_plus_margin = margin;
+		}
+		void set_minus_margin(uint32_t margin)
+		{
+			temperature_minus_margin = margin;
 		}
 
-		void set_period(uint32_t period)
+		uint32_t get_nominal_temperature(void)
 		{
-			period = period;
+			return nominal_temperature;
 		}
-		uint32_t get_period(void)
+		uint32_t get_plus_margin(void)
 		{
-			return period;
+			return temperature_plus_margin;
 		}
+		uint32_t get_minus_margin(void)
+		{
+			return temperature_minus_margin;
+		}
+};
+//}}}
 
-		void set_duty_cycle(uint32_t duty_cycle)
+//{{{ class EC_sensor
+
+class EC_sensor : public Sensor
+{
+	using Sensor::Sensor;
+	// If we titrate the water, we'll add electrolytes.
+	// Let's track their amount as a current offset
+	// Static because offset will be the same for all sensors
+	static int32_t current_offset;
+
+	// Some stuff like an array for low-pass filtering, etc.
+
+	void process(uint32_t measure)
+	{
+		uint32_t measured = measure();
+		// TODO filter
+		value = measured;
+	}
+	public:
+		static void add_offset(int32_t offset)
 		{
-			duty_cycle = duty_cycle;
+			current_offset += offset;
 		}
-		uint32_t get_duty_cycle(void)
+		static void set_offset(int32_t offset)
 		{
-			return duty_cycle;
+			current_offset = offset;
 		}
+		static int32_t get_offset(void)
+		{
+			return current_offset;
+		}
+};
+
+int32_t EC_sensor::current_offset = 0;
+//}}}
+
+//{{{ class PH_sensor
+
+class PH_sensor : public Sensor
+{
+	using Sensor::Sensor;
+	// Some stuff like an array for low-pass filtering, etc.
+
+	void process(uint32_t measure)
+	{
+		uint32_t measured = measure();
+		// TODO filter
+		// if there is a change, inform the EC sensor of the offset
+		// EC_sensor::add_offset(xxx);
+		value = measured;
+	}
 };
 //}}}
 
