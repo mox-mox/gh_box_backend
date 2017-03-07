@@ -2,6 +2,7 @@
 #define SENSORS_HPP
 
 #include "config.hpp"
+#include "actuators.hpp"
 
 //{{{ class Sensor
 
@@ -62,11 +63,10 @@ class Temp_sensor: public Sensor
 
 	void process(uint32_t measure)
 	{
-		uint32_t measured = measure();
 		// TODO filter
 		// if it is too warm
 		// fan.start()
-		value = measured;
+		value = measure;
 	}
 
 	public:
@@ -130,9 +130,8 @@ class EC_sensor : public Sensor
 
 	void process(uint32_t measure)
 	{
-		uint32_t measured = measure();
 		// TODO filter
-		value = measured;
+		value = measure;
 	}
 	public:
 		static void add_offset(int32_t offset)
@@ -161,11 +160,10 @@ class PH_sensor : public Sensor
 
 	void process(uint32_t measure)
 	{
-		uint32_t measured = measure();
 		// TODO filter
 		// if there is a change, inform the EC sensor of the offset
 		// EC_sensor::add_offset(xxx);
-		value = measured;
+		value = measure;
 	}
 };
 //}}}

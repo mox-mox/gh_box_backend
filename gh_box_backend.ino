@@ -33,6 +33,8 @@ void loop(void)
 	// See if we need to turn on the water pump or the lamp
 	pump(current_time);
 	lamp(current_time);
+	communicate.test();
+	//communicate.send_message(Message::command::get_temperature, temp.get_value());
 }
 
 

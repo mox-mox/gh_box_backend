@@ -367,6 +367,10 @@ class Message : public Message_interface
 
 	public:
 
+	void test(void)
+	{
+		send_message(command::get_temperature, temp.get_value());
+	}
 
 	//{{{
 	void operator()(void)
