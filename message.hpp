@@ -366,6 +366,10 @@ class Message : public Message_interface
 	//}}}
 
 	public:
+	Message(uint32_t baudrate)
+	{
+		Serial.begin(baudrate);
+	}
 
 	void test(void)
 	{

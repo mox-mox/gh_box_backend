@@ -12,7 +12,7 @@ Temp_sensor              temp(TEMP_PIN, HEATER_PIN, FAN_PIN, SAMPLING_PERIOD_TEM
 
 
 
-Message                  communicate;
+Message                  communicate(9600);
 
 void setup(void)
 {
