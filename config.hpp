@@ -12,7 +12,7 @@ extern Temp_sensor              temp;
 
 #include "message.hpp"
 
-extern Message                  communicate;
+//extern Message                  communicate;
 
 // The pins
 #define HEATER_PIN                   0 // TODO: Insert correct value
@@ -21,7 +21,7 @@ extern Message                  communicate;
 #define PUMP_PIN                     0 // TODO: Insert correct value
 #define LAMP_PIN                     0 // TODO: Insert correct value
 
-#define TEMP_PIN                     0 // TODO: Insert correct value
+#define TEMP_PIN                     2
 #define PH_PIN                       0 // TODO: Insert correct value
 #define EC_PIN                       0 // TODO: Insert correct value
 

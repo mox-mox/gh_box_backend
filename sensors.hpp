@@ -4,20 +4,23 @@
 #include "config.hpp"
 #include "actuators.hpp"
 
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
 //{{{ class Sensor
 
 class Sensor
 {
-	uint8_t sensing_pin;
-	uint32_t sampling_period;
-	uint32_t sampling_time = 0;
-	virtual uint32_t measure(void) const // Return the current sensor read out
-	{
-		//return analogRead(sensing_pin);
-		return 0x44;
-	}
-	virtual void process(uint32_t measure) = 0; // Do filtering on the sensor value and store it
 	protected:
+		uint8_t sensing_pin;
+		uint32_t sampling_period;
+		uint32_t sampling_time = 0;
+		virtual uint32_t measure(void) const = 0; // Return the current sensor read out
+		//{
+		//	//return analogRead(sensing_pin);
+		//	return 0x44;
+		//}
+		virtual void process(uint32_t measure) = 0; // Do filtering on the sensor value and store it
 		uint32_t value = 0;
 
 	public:
@@ -53,13 +56,15 @@ class Temp_sensor: public Sensor
 	uint32_t temperature_plus_margin;
 	uint32_t temperature_minus_margin;
 
+	OneWire one_wire_interface;//(ONE_WIRE_BUS);
+	DallasTemperature sensor_backend;//(&oneWire);
 
 	// Some stuff like an array for low-pass filtering, etc.
 
 	uint32_t measure(void) const override  // The temperature sensor is measured differently
 	{
-		// TODO Read out the temperature sensor
-		return 5;
+		sensor_backend.requestTemperatures();  
+		return sensor_backend.getTempCByIndex(0)*10;
 	}
 
 	void process(uint32_t measure)
@@ -85,6 +90,8 @@ class Temp_sensor: public Sensor
 			nominal_temperature(nominal_temperature),
 			temperature_plus_margin(temperature_plus_margin?temperature_plus_margin:100),
 			temperature_minus_margin(temperature_minus_margin?temperature_minus_margin:(temperature_plus_margin?temperature_plus_margin:100)),
+			one_wire_interface(sensing_pin),
+			sensor_backend(&one_wire_interface),
 			heater(heater_pin),
 			fan(fan_pin)
 			{}
@@ -127,6 +134,11 @@ class EC_sensor : public Sensor
 	// Static because offset will be the same for all sensors
 	static int32_t current_offset;
 
+		uint32_t measure(void) const // Return the current sensor read out
+		{
+			//return analogRead(sensing_pin);
+			return 0x44;
+		}
 	// Some stuff like an array for low-pass filtering, etc.
 
 	void process(uint32_t measure)
@@ -158,6 +170,11 @@ class PH_sensor : public Sensor
 {
 	using Sensor::Sensor;
 	// Some stuff like an array for low-pass filtering, etc.
+
+	uint32_t measure(void) const // Return the current sensor read out
+	{
+		return analogRead(sensing_pin)*7*5.0/1024/12; //convert the analog into millivolt
+	}
 
 	void process(uint32_t measure)
 	{

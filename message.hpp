@@ -377,18 +377,9 @@ class Message : public Message_interface
 	//}}}
 
 	public:
-	Message(uint32_t baudrate)
+	void test(void) // TODO: Remove
 	{
-		Serial.begin(baudrate);
-	}
-
-	void test(void)
-	{
-		//transmit_message({command::ack, 0x41424344, nack_crc});
-		//uint8_t foo[] = { 'a', 's', 'd', 'f', '0', 'O' };
-		transmit_message({static_cast<command>('a'), 0x41424344, static_cast<crc_sum>('x')});
-		//transmit_message({command::ack, 0x41424344, nack_crc});
-		//send_message(command::get_temperature, temp.get_value());
+		transmit_message({command::ack, 0x41424344, nack_crc});
 	}
 
 	//{{{
