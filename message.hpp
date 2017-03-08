@@ -17,7 +17,7 @@
 
 
 //{{{
-class Message_interface
+class Message_interface_common
 {
 	protected:
 	using crc_sum = uint8_t;
@@ -164,10 +164,10 @@ class Message_interface
 //}}}
 
 
-//{{{ class Message
+//{{{ class Message_interface
 #ifdef  __linux__
 
-class Message : Message_interface
+class Message_interface : Message_interface_common
 {
 	//{{{
 	inline uint8_t get_uint8_t(void) override
@@ -332,12 +332,12 @@ class Message : Message_interface
 //}}}
 
 
-//{{{ class Message
+//{{{ class Message_interface
 #ifdef __AVR__
 
-class Message : public Message_interface
+class Message_interface : public Message_interface_common
 {
-	using Message_interface::Message_interface;
+	//using Message_interface_common::Message_interface_common;
 	//{{{
 	inline uint8_t get_uint8_t(void) override
 	{

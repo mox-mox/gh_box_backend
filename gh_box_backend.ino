@@ -9,7 +9,7 @@ PH_sensor                ph(PH_PIN, SAMPLING_PERIOD_PH);
 EC_sensor                ec(EC_PIN, SAMPLING_PERIOD_EC);
 Temp_sensor              temp(TEMP_PIN, HEATER_PIN, FAN_PIN, SAMPLING_PERIOD_TEMP, NOMINAL_TEMP, TEMP_MARGIN);
 
-Message                  communicate;
+Message_interface        communicate;
 
 
 void setup(void)
@@ -33,6 +33,7 @@ void loop(void)
 	pump(current_time);
 	lamp(current_time);
 	communicate.test();
+	delay(500);
 }
 
 
