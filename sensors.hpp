@@ -13,7 +13,8 @@ class Sensor
 	uint32_t sampling_time = 0;
 	virtual uint32_t measure(void) const // Return the current sensor read out
 	{
-		return analogRead(sensing_pin);
+		//return analogRead(sensing_pin);
+		return 0x44;
 	}
 	virtual void process(uint32_t measure) = 0; // Do filtering on the sensor value and store it
 	protected:

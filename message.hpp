@@ -19,6 +19,7 @@
 //{{{
 class Message_interface
 {
+	protected:
 	using crc_sum = uint8_t;
 	static constexpr uint8_t send_retries = 3;
 	protected:
@@ -182,7 +183,7 @@ class Message : Message_interface
 	//}}}
 	//{{{
 	void transmit_message(const message& msg) override // must always succeed
-	{
+	{                                                  // This function must send the data bytes in reverse oder to account for the different endiannes
 		// TODO
 	}
 	//}}}
@@ -194,63 +195,9 @@ class Message : Message_interface
 	//}}}
 
 	public:
-	//{{{
-	//{{{
-	uint32_t get_temperature(void)
-	{
-		if(send_message(command::get_temperature, void_data)) return -1;
-		return get_data(command::get_temperature);
-	}
-	//}}}
-	//{{{
-	uint32_t get_fan_status(void)
-	{
-		if(send_message(command::get_fan_status, void_data)) return -1;
-		return get_data(command::get_fan_status);
-	}
-	//}}}
-	//{{{
-	uint32_t get_heater_status(void)
-	{
-		if(send_message(command::get_heater_status, void_data)) return -1;
-		return get_data(command::get_heater_status);
-	}
-	//}}}
-	//{{{
-	uint32_t get_ph(void)
-	{
-		if(send_message(command::get_ph, void_data)) return -1;
-		return get_data(command::get_ph);
-	}
-	//}}}
-	//{{{
-	uint32_t get_ec(void)
-	{
-		if(send_message(command::get_ec, void_data)) return -1;
-		return get_data(command::get_ec);
-	}
-	//}}}
-	//{{{
-	uint32_t get_ec_offset(void)
-	{
-		if(send_message(command::get_ec_offset, void_data)) return -1;
-		return get_data(command::get_ec_offset);
-	}
-	//}}}
-	//{{{
-	uint32_t get_lamp_status(void)
-	{
-		if(send_message(command::get_lamp_status, void_data)) return -1;
-		return get_data(command::get_lamp_status);
-	}
-	//}}}
-	//{{{
-	uint32_t get_pump_status(void)
-	{
-		if(send_message(command::get_pump_status, void_data)) return -1;
-		return get_data(command::get_pump_status);
-	}
-	//}}}
+	//{{{ Setters and Getters
+
+	//{{{ Setters
 
 	//{{{
 	bool set_temp_sensor_period(uint32_t period)
@@ -319,6 +266,67 @@ class Message : Message_interface
 	}
 	//}}}
 	//}}}
+
+	//{{{ Getters
+
+	//{{{
+	uint32_t get_temperature(void)
+	{
+		if(send_message(command::get_temperature, void_data)) return -1;
+		return get_data(command::get_temperature);
+	}
+	//}}}
+	//{{{
+	uint32_t get_fan_status(void)
+	{
+		if(send_message(command::get_fan_status, void_data)) return -1;
+		return get_data(command::get_fan_status);
+	}
+	//}}}
+	//{{{
+	uint32_t get_heater_status(void)
+	{
+		if(send_message(command::get_heater_status, void_data)) return -1;
+		return get_data(command::get_heater_status);
+	}
+	//}}}
+	//{{{
+	uint32_t get_ph(void)
+	{
+		if(send_message(command::get_ph, void_data)) return -1;
+		return get_data(command::get_ph);
+	}
+	//}}}
+	//{{{
+	uint32_t get_ec(void)
+	{
+		if(send_message(command::get_ec, void_data)) return -1;
+		return get_data(command::get_ec);
+	}
+	//}}}
+	//{{{
+	uint32_t get_ec_offset(void)
+	{
+		if(send_message(command::get_ec_offset, void_data)) return -1;
+		return get_data(command::get_ec_offset);
+	}
+	//}}}
+	//{{{
+	uint32_t get_lamp_status(void)
+	{
+		if(send_message(command::get_lamp_status, void_data)) return -1;
+		return get_data(command::get_lamp_status);
+	}
+	//}}}
+	//{{{
+	uint32_t get_pump_status(void)
+	{
+		if(send_message(command::get_pump_status, void_data)) return -1;
+		return get_data(command::get_pump_status);
+	}
+	//}}}
+	//}}}
+	//}}}
 };
 #endif
 //}}}
@@ -351,11 +359,14 @@ class Message : public Message_interface
 	//{{{
 	void transmit_message(const message& msg) override // must always succeed
 	{
-		size_t n = 0;
-		while(n<sizeof(msg))	// Busy-loop until all data is force-fed into the UART
-		{
-			n += Serial.write(reinterpret_cast < const uint8_t* > (&msg) + n, sizeof(msg) - n);
-		}
+		const uint8_t* msg_arr = reinterpret_cast<const uint8_t*>(&msg);
+		// Loop for each byte unitl it is really sent
+		while(!Serial.write(msg_arr[0])); // Command
+		while(!Serial.write(msg_arr[4])); // Data[3] Data is sent in
+		while(!Serial.write(msg_arr[3])); // Data[2] reverse order to account
+		while(!Serial.write(msg_arr[2])); // Data[1] for the different
+		while(!Serial.write(msg_arr[1])); // Data[0] endianness of the host.
+		while(!Serial.write(msg_arr[5])); // Checksum
 	}
 	//}}}
 	//{{{
@@ -373,7 +384,11 @@ class Message : public Message_interface
 
 	void test(void)
 	{
-		send_message(command::get_temperature, temp.get_value());
+		//transmit_message({command::ack, 0x41424344, nack_crc});
+		//uint8_t foo[] = { 'a', 's', 'd', 'f', '0', 'O' };
+		transmit_message({static_cast<command>('a'), 0x41424344, static_cast<crc_sum>('x')});
+		//transmit_message({command::ack, 0x41424344, nack_crc});
+		//send_message(command::get_temperature, temp.get_value());
 	}
 
 	//{{{
