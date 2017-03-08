@@ -8,8 +8,7 @@
 #ifdef __linux__
 #include <cstdint>
 #include <cstddef>
-#endif
-
+#endif 
 // Format:
 //
 //     |  cmd   | data[0]| data[1]| data[2]| data[3]|  crc   |
@@ -361,12 +360,18 @@ class Message_interface : public Message_interface_common
 	{
 		const uint8_t* msg_arr = reinterpret_cast<const uint8_t*>(&msg);
 		// Loop for each byte unitl it is really sent
-		while(!Serial.write(msg_arr[0])); // Command
-		while(!Serial.write(msg_arr[4])); // Data[3] Data is sent in
-		while(!Serial.write(msg_arr[3])); // Data[2] reverse order to account
-		while(!Serial.write(msg_arr[2])); // Data[1] for the different
-		while(!Serial.write(msg_arr[1])); // Data[0] endianness of the host.
-		while(!Serial.write(msg_arr[5])); // Checksum
+		//while(!Serial.write(msg_arr[5])); // Command
+		//while(!Serial.write(msg_arr[4])); // Data[3] Data is sent in
+		//while(!Serial.write(msg_arr[3])); // Data[2] reverse order to account
+		//while(!Serial.write(msg_arr[2])); // Data[1] for the different
+		//while(!Serial.write(msg_arr[1])); // Data[0] endianness of the host.
+		//while(!Serial.write(msg_arr[0])); // Checksum
+
+		size_t n = sizeof(msg);
+		while(n)	// Busy-loop until all data is force-fed into the UART
+		{
+			n -= Serial.write(msg_arr[n-1]);
+		}
 	}
 	//}}}
 	//{{{
@@ -385,9 +390,12 @@ class Message_interface : public Message_interface_common
 	//{{{
 	void operator()(void)
 	{
-		while(bytes_available() > sizeof(message))
+		while(bytes_available() >= sizeof(message))
 		{
+			//Serial.write("received command: ", 18);
 			message msg(static_cast<command>(get_uint8_t()), get_uint32_t(), get_uint8_t());
+			//transmit_message(msg);
+			//Serial.write("end of command", 14);
 			if(msg.crc != calc_crc(msg.cmd, msg.data) && send_nack())
 			{
 				continue;
@@ -415,52 +423,55 @@ class Message_interface : public Message_interface_common
 					break;
 				case command::get_ec_offset:
 					send_message(command::get_ec_offset, ec.get_offset());
+
+				case command::get_lamp_status:
+					send_message(command::get_lamp_status, lamp.is_running());
 					break;
 				//}}}
 
-				//{{{ Setters
+			//	//{{{ Setters
 
-				case command::set_temp_sensor_period:
-					temp.set_period(msg.data);
-					break;
+			//	case command::set_temp_sensor_period:
+			//		temp.set_period(msg.data);
+			//		break;
 
-				case command::set_nominal_temperature:
-					temp.set_nominal_temperature(msg.data);
-					break;
-				case command::set_temperature_margin_plus:
-					temp.set_plus_margin(msg.data);
-					break;
-				case command::set_temperature_margin_minus:
-					temp.set_minus_margin(msg.data);
-					break;
-				case command::set_ph_sensor_period:
-					ph.set_period(msg.data);
-					break;
-				case command::set_ec_sensor_period:
-					ec.set_period(msg.data);
-					break;
-				case command::set_ec_offset:
-					ec.set_offset(msg.data);
-					break;
-				case command::add_ec_offset:
-					ec.add_offset(msg.data);
-					break;
-				case command::set_lamp_period:
-					lamp.set_period(msg.data);
-					break;
-				case command::set_lamp_duty_cycle:
-					lamp.set_duty_cycle(msg.data);
-					break;
-				case command::set_pump_period:
-					pump.set_period(msg.data);
-					break;
-				case command::set_pump_duty_cycle:
-					pump.set_duty_cycle(msg.data);
-					break;
-				//}}}
+			//	case command::set_nominal_temperature:
+			//		temp.set_nominal_temperature(msg.data);
+			//		break;
+			//	case command::set_temperature_margin_plus:
+			//		temp.set_plus_margin(msg.data);
+			//		break;
+			//	case command::set_temperature_margin_minus:
+			//		temp.set_minus_margin(msg.data);
+			//		break;
+			//	case command::set_ph_sensor_period:
+			//		ph.set_period(msg.data);
+			//		break;
+			//	case command::set_ec_sensor_period:
+			//		ec.set_period(msg.data);
+			//		break;
+			//	case command::set_ec_offset:
+			//		ec.set_offset(msg.data);
+			//		break;
+			//	case command::add_ec_offset:
+			//		ec.add_offset(msg.data);
+			//		break;
+			//	case command::set_lamp_period:
+			//		lamp.set_period(msg.data);
+			//		break;
+			//	case command::set_lamp_duty_cycle:
+			//		lamp.set_duty_cycle(msg.data);
+			//		break;
+			//	case command::set_pump_period:
+			//		pump.set_period(msg.data);
+			//		break;
+			//	case command::set_pump_duty_cycle:
+			//		pump.set_duty_cycle(msg.data);
+			//		break;
+			//	//}}}
 
-				//default:
-					//assert(false); // TODO better error handling
+			//	//default:
+			//		//assert(false); // TODO better error handling
 			}
 		}
 	}

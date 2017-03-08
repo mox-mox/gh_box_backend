@@ -63,8 +63,9 @@ class Temp_sensor: public Sensor
 
 	uint32_t measure(void) const override  // The temperature sensor is measured differently
 	{
-		sensor_backend.requestTemperatures();  
-		return sensor_backend.getTempCByIndex(0)*10;
+		//sensor_backend.requestTemperatures();  
+		//return sensor_backend.getTempCByIndex(0)*10;
+		return 0xB00B;
 	}
 
 	void process(uint32_t measure)
