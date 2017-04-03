@@ -1,4 +1,5 @@
 #include "config.hpp"
+#include "sensors.hpp"
 
 
 
@@ -16,8 +17,15 @@ int ledState = 0;
 void setup(void)
 {
 	Serial.begin(9600);
+ 
 	// set the digital pin as output:
 	pinMode(ledPin, OUTPUT);
+  pinMode(FAN_PIN,OUTPUT);//FAN
+  pinMode(HEATER_PIN,OUTPUT);//HEATHER
+  pinMode(PUMP_PIN,OUTPUT);//PUMP
+  pinMode(LAMP_PIN ,OUTPUT);//LED
+
+
 	ledState = 0;
     digitalWrite(ledPin, ledState);
 	return;
