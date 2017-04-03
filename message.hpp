@@ -135,43 +135,12 @@ class Message_interface_common
 		//{{{
 		bool send_message(command cmd, uint32_t data)
 		{
-			//message msg = { cmd, data, calc_crc(cmd_data) };
 			message msg(cmd, data, calc_crc (cmd, data));
 			uint8_t i = send_retries;
 			do	// transmit up to send_retries times until we get an ACK
 			{
 				transmit_message(msg);
-				//Serial.write("XXXXXX", 6);
 			} while( !get_ack(cmd) && --i );
-
-			return i;
-		}
-		//}}}
-		//{{{
-		bool send_message_tampered(command cmd, uint32_t data)
-		{
-			//message msg = { cmd, data, calc_crc(cmd_data) };
-			message msg(cmd, data, calc_crc (cmd, data));
-			uint8_t i = send_retries;
-			do	// transmit up to send_retries times until we get an ACK
-			{
-				transmit_message(msg);
-			//} while( !get_ack(cmd) && ((--i)>0) );
-			} while( false );
-			get_ack(cmd);
-
-
-
-
-
-			//Serial.write("XXXXXX", 6);
-			//while(!Serial.write('X'));
-			//while(!Serial.write('X'));
-			//while(!Serial.write('X'));
-			//while(!Serial.write('X'));
-			//while(!Serial.write('X'));
-			//while(!Serial.write('X'));
-
 
 			return i;
 		}
@@ -435,47 +404,28 @@ class Message_interface_common
 			//{{{
 			void operator()(void)
 			{
-				//while(bytes_available() >= sizeof(message))
-				while( bytes_available() >= 6 )
+				while(bytes_available() >= sizeof(message))
+				//while( bytes_available() >= 6 )
 				{
-					//Serial.write("ooooo", 5);
-					//Serial.write("received command: ", 18);
-
 					command cmd = static_cast < command > (get_uint8_t());
 					uint32_t data = get_uint32_t();
 					crc_sum crc = get_uint8_t();
 
 					message msg(cmd, data, crc);
 
-					//Serial.write("ooooo", 5);
-					//transmit_message(msg);
-					//Serial.write("ooooo", 5);
 
-					//if(msg.crc != calc_crc(msg.cmd, msg.data) && send_nack())
-					//{
-					//	continue;
-					//}
+					if(msg.crc != calc_crc(msg.cmd, msg.data))
+					{
+						send_nack();
+						continue;
+					}
 
 					send_ack();
-					//Serial.write("AA", 2);
-					//Serial.write((char)msg.cmd);
-					//Serial.write("AA", 2);
 					switch( msg.cmd )
 					{
 						//{{{ Getters
 						case command::get_temperature:
-							//Serial.write("BBBBB", 5);
-							//message msg(command::get_temperature, temp.get_value(), 0);
-							//transmit_message(msg);
-							send_message_tampered(command::get_temperature, temp.get_value());
-							while( !Serial.write('Y')) ;
-							while( !Serial.write('Y')) ;
-							while( !Serial.write('Y')) ;
-							while( !Serial.write('Y')) ;
-							while( !Serial.write('Y')) ;
-							while( !Serial.write('Y')) ;
-
-							//Serial.write("XXXXXX", 6);
+							send_message(command::get_temperature, temp.get_value());
 							break;
 						case command::get_fan_status:
 							send_message(command::get_fan_status, temp.fan.is_running());
