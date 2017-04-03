@@ -10,6 +10,13 @@ extern int ledState;
 #ifdef __linux__
 #include <cstdint>
 #include <cstddef>
+#include <unistd.h>
+#include <fcntl.h>
+#include <termios.h>
+#include <string.h>
+#include <errno.h>
+#include <stdexcept>
+#include <sys/ioctl.h>
 #endif
 // Format:
 //
@@ -22,12 +29,11 @@ class Message_interface_common
 {
 	protected:
 		using crc_sum = uint8_t;
-		static constexpr uint8_t send_retries = 3;
-	protected:
+		//static constexpr uint8_t send_retries = 3;
+		static constexpr uint8_t send_retries = 1;
 		static constexpr uint32_t void_data = 0;
 		static constexpr crc_sum ack_crc = 0;	// TODO
 		static constexpr crc_sum nack_crc = 0;	// TODO
-
 
 		//{{{
 		enum class command: uint8_t
@@ -75,25 +81,102 @@ class Message_interface_common
 			crc_sum crc;
 			message(command cmd, uint32_t data, crc_sum crc) : cmd(cmd), data(data), crc(crc) { }
 			message() = default;
+			friend std::ostream& operator<<(std::ostream& lhs, message const& rhs)
+			{
+				lhs<<"message { "<<static_cast<int>(rhs.cmd)<<", "<<rhs.data<<", "<<static_cast<int>(rhs.crc)<<" }";
+				return lhs;
+			}
+			//friend message read_message(void)
+			//{
+			//	command cmd = static_cast<command>(get_uint8_t());
+			//	uint32_t data = get_uint32_t();
+			//	crc_sum crc = get_uint8_t();
+
+			//	return {cmd, data, crc};
+			//}
+			//friend void fill_message(message& msg)
+			//{
+			//	msg.cmd = static_cast<command>(get_uint8_t());
+			//	msg.data = get_uint32_t();
+			//	msg.crc = get_uint8_t();
+			//}
 		}  __attribute__((packed));
+		message read_message(void)
+		{
+			command cmd = static_cast<command>(get_uint8_t());
+			uint32_t data = get_uint32_t();
+			crc_sum crc = get_uint8_t();
+
+			return {cmd, data, crc};
+		}
+		void fill_message(message& msg)
+		{
+			msg.cmd = static_cast<command>(get_uint8_t());
+			msg.data = get_uint32_t();
+			msg.crc = get_uint8_t();
+		}
+
+		//friend message read_message(void);
+		//friend void fill_message(message& msg);
 		//}}}
 
 		crc_sum calc_crc(command cmd, uint32_t data)
 		{
+			(void) cmd;
+			(void) data;
 			return 0;	// TODO actual implementation
 		}
 
 		virtual uint8_t get_uint8_t(void) = 0;
+		virtual bool put_uint8_t(uint8_t byte) = 0;
 
-		virtual uint32_t get_uint32_t(void) = 0;
+		//{{{
+		uint32_t get_uint32_t(void)
+		{
+			uint32_t retval = 0;
 
-		virtual void transmit_message(const message& msg) = 0;	// must always succeed
+			//while(bytes_available() < sizeof(retval));
+			retval |= (static_cast < uint32_t > (get_uint8_t()))<<24;
+			retval |= (static_cast < uint32_t > (get_uint8_t()))<<16;
+			retval |= (static_cast < uint32_t > (get_uint8_t()))<<8;
+			retval |= (static_cast < uint32_t > (get_uint8_t()))<<0;
+			return retval;
+		}
+		//}}}
 
-		virtual uint8_t bytes_available(void) = 0;
+		void transmit_message(const message& msg)	// must always succeed
+		{
+			std::cout<<"transmit_message("<<msg<<"):"<<std::endl;
+			const uint8_t* msg_arr = reinterpret_cast<const uint8_t*>(&msg);
+
+			// Loop for each byte unitl it is really sent
+			while(!put_uint8_t(msg_arr[0])) ;	// Command
+			std::cout<<"	... "<<static_cast<int>(msg_arr[0])<<std::endl;
+			while(!put_uint8_t(msg_arr[4])) ;	// Data[3] Data is sent in
+			std::cout<<"	... "<<static_cast<int>(msg_arr[4])<<std::endl;
+			while(!put_uint8_t(msg_arr[3])) ;	// Data[2] reverse order to account
+			std::cout<<"	... "<<static_cast<int>(msg_arr[3])<<std::endl;
+			while(!put_uint8_t(msg_arr[2])) ;	// Data[1] for the different
+			std::cout<<"	... "<<static_cast<int>(msg_arr[2])<<std::endl;
+			while(!put_uint8_t(msg_arr[1])) ;	// Data[0] endianness of the host.
+			std::cout<<"	... "<<static_cast<int>(msg_arr[1])<<std::endl;
+			while(!put_uint8_t(msg_arr[5])) ;	// Checksum
+			std::cout<<"	... "<<static_cast<int>(msg_arr[5])<<std::endl;
+
+			//size_t n = sizeof(msg);
+			//while(n)	// Busy-loop until all data is force-fed into the UART
+			//{
+			//	n -= Serial.write(msg_arr[n-1]);
+			//}
+		}
+
+		virtual uint32_t bytes_available(void) = 0;
+		virtual void report_error(std::string error_message) = 0;
 
 		//{{{
 		uint8_t send_ack(void)
 		{
+			std::cout<<"send_ack()"<<std::endl;
 			transmit_message({ command::ack, void_data, ack_crc });
 			return 0;	// the return value is for compound logic magic
 		}
@@ -102,6 +185,7 @@ class Message_interface_common
 		//{{{
 		uint8_t send_nack(void)
 		{
+			std::cout<<"send_nack()"<<std::endl;
 			transmit_message({ command::nack, void_data, nack_crc });
 			return 1;	// the return value is for compound logic magic
 		}
@@ -110,23 +194,25 @@ class Message_interface_common
 		//{{{
 		inline bool get_ack(command expected_cmd)
 		{
+			(void) expected_cmd;
 			while( bytes_available() < sizeof(message)) ;
-				ledState = 1;
-				digitalWrite(ledPin, ledState);
-			command cmd = static_cast < command > (get_uint8_t());
-			switch( cmd )
+
+			//command cmd = static_cast < command > (get_uint8_t());
+
+			message msg = read_message();
+			std::cout<<"get_ack(): received "<<msg<<std::endl;
+
+
+			switch(msg.cmd)
 			{
 				case command::ack:
-					(void) get_uint32_t();	// clear the data part
-					return get_uint8_t() == ack_crc;
+					return msg.crc == ack_crc;
 
 					break;
 				case command::nack:
-					(void) get_uint32_t();	// clear the data part
-					(void) get_uint8_t();	// clear the crc part
 					break;
-					//default:
-					//assert(false); // TODO: Better error handling
+				default:
+					report_error("Error: get_ack(): received command "+std::to_string(static_cast<int>(msg.cmd))+".");
 			}
 			return false;
 		}
@@ -135,12 +221,22 @@ class Message_interface_common
 		//{{{
 		bool send_message(command cmd, uint32_t data)
 		{
+			std::cout<<"send_message( command cmd = "<<static_cast<int>(cmd)<<", uint32_t data = "<<data<<" )"<<std::endl;
 			message msg(cmd, data, calc_crc (cmd, data));
 			uint8_t i = send_retries;
 			do	// transmit up to send_retries times until we get an ACK
 			{
+				std::cout<<"send_message(): Sending "<<msg<<std::endl;
 				transmit_message(msg);
 			} while( !get_ack(cmd) && --i );
+			if(i)
+			{
+				std::cout<<"send_message(): ... message sent and ack'ed"<<std::endl;
+			}
+			else
+			{
+				std::cout<<"send_message(): ... failed to send message"<<std::endl;
+			}
 
 			return i;
 		}
@@ -149,16 +245,20 @@ class Message_interface_common
 		//{{{
 		uint32_t get_data(command expected_cmd)
 		{
+			std::cout<<"get_data( command expected_cmd = "<<static_cast<int>(expected_cmd)<<" )"<<std::endl;
 			while( bytes_available() < sizeof(message)) ;
 			message msg;
 			//uint32_t retval;
 			uint8_t i = send_retries;
 			do	// Read up to send_retries times until the command and crc are correct
 			{	// On match send ACK, else send NACK
-				msg.cmd = static_cast < command > (get_uint8_t());
-				msg.data = get_uint32_t();
-				msg.crc = get_uint8_t();
+				//msg.cmd = static_cast < command > (get_uint8_t());
+				//msg.data = get_uint32_t();
+				//msg.crc = get_uint8_t();
+				fill_message(msg);
+				std::cout<<"get_data(): received "<<msg<<std::endl;
 			} while((msg.cmd != expected_cmd || msg.crc != calc_crc(msg.cmd, msg.data) || send_ack()) && send_nack() && --i );
+			//send_ack();
 
 			return i ? msg.data : -1;
 		}
@@ -167,37 +267,89 @@ class Message_interface_common
 //}}}
 
 
-//{{{ class Message_interface
+//{{{ class Message_interface for Raspberry Pi
+
 #ifdef  __linux__
 
 	class Message_interface: Message_interface_common
 	{
+		int uart0_filestream = -1;
+
+		//{{{
+		void report_error(std::string error_message) override
+		{
+			std::cerr<<error_message<<std::endl;
+		}
+		//}}}
 		//{{{
 		inline uint8_t get_uint8_t(void) override
 		{
-			return 0;	// TODO
+			uint8_t retval;
+			while(1)
+			switch(read(uart0_filestream, &retval, 1))
+			{
+				case 1:
+					std::cout<<"						get_uint8_t() = "<<static_cast<int>(retval)<<std::endl;
+					return retval;
+					break;
+				case 0:
+					break;
+				default:
+					report_error("Read error:\n\t"+std::string(strerror(errno)));
+			}
 		}
 		//}}}
+
 		//{{{
-		uint32_t get_uint32_t(void) override
+		bool put_uint8_t(uint8_t byte) override
 		{
-			return 0;	// TODO
+			while(1)
+			switch(write(uart0_filestream, &byte, 1))
+			{
+				case 1:
+					std::cout<<"						put_uint8_t( "<<static_cast<int>(byte)<<" )"<<std::endl;
+					return true;
+					break;
+				case 0:
+					break;
+				default:
+					report_error("Write error:\n\t"+std::string(strerror(errno)));
+			}
+			return false;
 		}
 		//}}}
+
 		//{{{
-		void transmit_message(const message& msg) override	// must always succeed
-		{												// This function must send the data bytes in reverse oder to account for the different endiannes
-			// TODO
-		}
-		//}}}
-		//{{{
-		inline uint8_t bytes_available(void) override
+		inline uint32_t bytes_available(void) override
 		{
-			return 0;	// TODO
+			uint32_t bytes_avail;
+			ioctl(uart0_filestream, FIONREAD, &bytes_avail);
+			//std::cout<<"Please implement bytes_available(void)"<<std::endl;
+			//return 0;	// TODO
+			std::cout<<"		There are now "<<bytes_avail<<" bytes available for reading"<<std::endl;
+			sleep(1);
+			return bytes_avail;
 		}
 		//}}}
 
 		public:
+			//{{{
+			Message_interface(void)
+			{
+				uart0_filestream = open("/dev/ttyAMA0", O_RDWR|O_NOCTTY);
+				if( uart0_filestream == -1 )
+					throw std::runtime_error("Error - Unable to open UART:\n\t"+std::string(strerror(errno)));
+				struct termios options;
+				tcgetattr(uart0_filestream, &options);
+				options.c_iflag = IGNPAR;
+				//options.c_iflag = PARMRK;
+				options.c_cflag = B9600|CS8|CLOCAL|CREAD;
+				options.c_oflag = 0;
+				options.c_lflag = 0;
+				tcflush(uart0_filestream, TCIFLUSH);
+				tcsetattr(uart0_filestream, TCSANOW, &options);
+			}
+			//}}}
 			//{{{ Setters and Getters
 
 			//{{{ Setters
@@ -275,9 +427,23 @@ class Message_interface_common
 			//{{{
 			uint32_t get_temperature(void)
 			{
-				if( send_message(command::get_temperature, void_data)) return -1;
+				std::cout<<"	Trying to get temperature"<<std::endl;
+				if(!send_message(command::get_temperature, void_data))
+				{
+					std::cout<<"get_temperature(): Aborting"<<std::endl;
+					return -1;
+				}
+				std::cout<<"	send request"<<std::endl;
 
-				return get_data(command::get_temperature);
+				uint32_t data = get_data(command::get_temperature);
+				for(uint32_t avail=bytes_available(); avail; avail--)
+				{
+					get_uint8_t();
+					//uint8_t byte = get_uint8_t();
+					//std::cout<<"remaining byte: "<<byte<<std::endl;
+				}
+
+				return data;
 			}
 			//}}}
 			//{{{
@@ -343,53 +509,37 @@ class Message_interface_common
 //}}}
 
 
-//{{{ class Message_interface
+//{{{ class Message_interface for Arduino
+
 #ifdef __AVR__
 
 	class Message_interface: public Message_interface_common
 	{
 		//using Message_interface_common::Message_interface_common;
 		//{{{
+		void report_error(std::string& error_message) override
+		{
+			(void) error_message;
+			digitalWrite(ledPin, 1);
+		}
+		//}}}
+		//{{{
 		inline uint8_t get_uint8_t(void) override
 		{
 			return Serial.read();
 		}
 		//}}}
+		
 		//{{{
-		uint32_t get_uint32_t(void) override
+		bool put_uint8_t(uint8_t byte) override
 		{
-			uint32_t retval = 0;
-
-			//while(bytes_available() < sizeof(retval));
-			retval |= (static_cast < uint32_t > (get_uint8_t()))<<24;
-			retval |= (static_cast < uint32_t > (get_uint8_t()))<<16;
-			retval |= (static_cast < uint32_t > (get_uint8_t()))<<8;
-			retval |= (static_cast < uint32_t > (get_uint8_t()))<<0;
-			return retval;
+			return Serial.write(byte);
 		}
 		//}}}
-		//{{{
-		void transmit_message(const message& msg) override	// must always succeed
-		{
-			const uint8_t* msg_arr = reinterpret_cast<const uint8_t*>(&msg);
 
-			// Loop for each byte unitl it is really sent
-			while( !Serial.write(msg_arr[0])) ;	// Command
-			while( !Serial.write(msg_arr[4])) ;	// Data[3] Data is sent in
-			while( !Serial.write(msg_arr[3])) ;	// Data[2] reverse order to account
-			while( !Serial.write(msg_arr[2])) ;	// Data[1] for the different
-			while( !Serial.write(msg_arr[1])) ;	// Data[0] endianness of the host.
-			while( !Serial.write(msg_arr[5])) ;	// Checksum
 
-			//size_t n = sizeof(msg);
-			//while(n)	// Busy-loop until all data is force-fed into the UART
-			//{
-			//	n -= Serial.write(msg_arr[n-1]);
-			//}
-		}
-		//}}}
 		//{{{
-		inline uint8_t bytes_available(void) override
+		inline uint32_t bytes_available(void) override
 		{
 			return Serial.available();
 		}
