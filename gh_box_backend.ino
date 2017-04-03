@@ -11,10 +11,15 @@ Temp_sensor              temp(TEMP_PIN, HEATER_PIN, FAN_PIN, SAMPLING_PERIOD_TEM
 
 Message_interface        communicate;
 
+int ledState = 0;
 
 void setup(void)
 {
 	Serial.begin(9600);
+	// set the digital pin as output:
+	pinMode(ledPin, OUTPUT);
+	ledState = 0;
+    digitalWrite(ledPin, ledState);
 	return;
 }
 

@@ -45,4 +45,10 @@ extern Temp_sensor              temp;
 
 
 
+// constants won't change. Used here to set a pin number :
+#define ledPin 13      // the number of the LED pin
+extern int ledState;
+
+
+
 #endif /* CONFIG_HPP */

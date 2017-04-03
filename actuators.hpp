@@ -13,11 +13,11 @@ class Actuator
 	protected:
 		inline void start_actuator(void)
 		{
-			digitalWrite(control_pin, 1);
+			digitalWrite(control_pin, 0);
 		}
 		inline void stop_actuator(void)
 		{
-			digitalWrite(control_pin, 0);
+			digitalWrite(control_pin, 1);
 		}
 
 	public:
