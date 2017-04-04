@@ -63,11 +63,16 @@ class Temp_sensor: public Sensor
 
 	uint32_t measure(void) const override	// The temperature sensor is measured differently
 	{
-		//sensor_backend.requestTemperatures();
-		//return sensor_backend.getTempCByIndex(0)*10;
-		//return 0x1011121314;
-		//return 0x01020304;
-		return 123456;
+		int t2;
+// Send the command to get temperatures
+  sensor_backend.requestTemperatures();  
+  Serial.print("Temperature is: ");
+ 
+ // Why "byIndex"? You can have more than one IC on the same bus. 0 refers to the first IC on the wire
+  float t1=sensor_backend.getTempCByIndex(0)*10;
+  t2= (int) t1;
+ 
+ return t2;
 	}
 
 	void process(uint32_t measure)
