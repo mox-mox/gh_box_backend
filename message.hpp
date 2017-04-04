@@ -298,7 +298,7 @@ class Message_interface_common
 			switch(read(uart0_filestream, &retval, 1))
 			{
 				case 1:
-					std::cout<<"					get_uint8_t() = "<<static_cast<int>(retval)<<std::endl;
+					//std::cout<<"					get_uint8_t() = "<<static_cast<int>(retval)<<std::endl;
 					return retval;
 					break;
 				case 0:
@@ -316,7 +316,7 @@ class Message_interface_common
 			switch(write(uart0_filestream, &byte, 1))
 			{
 				case 1:
-					std::cout<<"							put_uint8_t( "<<static_cast<int>(byte)<<" )"<<std::endl;
+					//std::cout<<"							put_uint8_t( "<<static_cast<int>(byte)<<" )"<<std::endl;
 					return true;
 					break;
 				case 0:
