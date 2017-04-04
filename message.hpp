@@ -679,7 +679,7 @@ class Message_interface_common
 							send_message(command::get_lamp_period, lamp.get_period());
 							break;
 						case command::get_lamp_duty_cycle:
-							send_message(command::get_lamp_status, lamp.get_duty_cycle());
+							send_message(command::get_lamp_duty_cycle, lamp.get_duty_cycle());
 							break;
 
 						case command::get_pump_status:

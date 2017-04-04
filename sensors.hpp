@@ -186,7 +186,7 @@ class EC_sensor: public Sensor
 		}
 };
 
-int32_t EC_sensor::current_offset = 0;
+int32_t EC_sensor::current_offset = 77;
 //}}}
 
 //{{{ class PH_sensor
