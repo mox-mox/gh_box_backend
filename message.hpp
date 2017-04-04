@@ -46,15 +46,15 @@ class Message_interface_common
 			get_temperature              =  10,
 			get_fan_status               =  11,
 			get_heater_status            =  12,
-			get_temperature_nominal      = 13,
-			get_temperature_plus_margin  = 14,
-			get_temperature_minus_margin = 14,
+			get_temperature_nominal      =  13,
+			get_temperature_plus_margin  =  14,
+			get_temperature_minus_margin =  15,
 			get_ph                       =  20,
 			get_ec                       =  30,
 			get_ec_offset                =  31,
 			get_lamp_status              =  40,
 			get_lamp_period              =  41,
-			get_lamp_duty_cycle          =  41,
+			get_lamp_duty_cycle          =  42,
 			get_pump_status              =  50,
 			get_pump_period              =  51,
 			get_pump_duty_cycle          =  52,
@@ -651,7 +651,7 @@ class Message_interface_common
 						case command::get_temperature_plus_margin:
 							send_message(command::get_temperature_plus_margin, temp.get_plus_margin());
 							break;
-						case command::get_nominal_temperature_minus_margin:
+						case command::get_temperature_minus_margin:
 							send_message(command::get_temperature_minus_margin, temp.get_minus_margin());
 							break;
 
