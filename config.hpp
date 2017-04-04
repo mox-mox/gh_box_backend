@@ -17,12 +17,11 @@ extern Temp_sensor              temp;
 // The pins
 #define HEATER_PIN                   9 // TODO: Insert correct value
 #define FAN_PIN                      8 // TODO: Insert correct value
-//#define ILLUMINATION_PIN             0 // TODO: Insert correct value
 #define PUMP_PIN                     7 // TODO: Insert correct value
 #define LAMP_PIN                     10 // TODO: Insert correct value
 
-#define TEMP_PIN                     2
-#define PH_PIN                       0 // TODO: Insert correct value
+#define TEMP_PIN                     2  
+#define PH_PIN                       A0 // TODO: Insert correct value
 #define EC_PIN                       0 // TODO: Insert correct value
 
 
