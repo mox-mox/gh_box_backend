@@ -692,6 +692,7 @@ class Message_interface_common
 						case command::get_ec_offset:
 							send_ack();
 							send_message(command::get_ec_offset, ec.get_offset());
+							break;
 
 						case command::get_lamp_status:
 							send_ack();
