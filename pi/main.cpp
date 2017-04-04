@@ -8,7 +8,7 @@ int main(void)
 	//std::cout<<"Hello World!"<<std::endl;
 	Message_interface arduino;
 
-	for(uint32_t i=0; true; i++)
+	for(uint32_t i=0; i<5; i++)
 	{
 		////std::cout<<std::endl<<"==================="<<std::endl<<std::endl;
 		//uint32_t temp = arduino.get_temperature();
@@ -27,17 +27,19 @@ int main(void)
 		std::cout<<"	Heater is                  : "<<(arduino.get_heater_status()?"ON.":"OFF.")<<std::endl;
 		std::cout<<"	Fan is                     : "<<(arduino.get_fan_status()?"ON.":"OFF.")<<std::endl;
 		std::cout<<"Variables:"<<std::endl;
-		std::cout<<"	Temperature nominal is     : "<<static_cast<double>(arduino.get_temperature_nominal())/10<<"s."<<std::endl;
-		std::cout<<"	Temperature plus margin is : "<<static_cast<double>(arduino.get_temperature_plus_margin())/10<<"s."<<std::endl;
-		std::cout<<"	Temperature minus margin is: "<<static_cast<double>(arduino.get_temperature_plus_margin())/10<<"s."<<std::endl;
+		std::cout<<"	Temperature nominal is     : "<<static_cast<double>(arduino.get_temperature_nominal())/10<<"°C."<<std::endl;
+		std::cout<<"	Temperature plus margin is : "<<static_cast<double>(arduino.get_temperature_plus_margin())/10<<"°C."<<std::endl;
+		std::cout<<"	Temperature minus margin is: "<<static_cast<double>(arduino.get_temperature_minus_margin())/10<<"°C."<<std::endl;
 
 		std::cout<<"	EC offset is               : "<<static_cast<double>(arduino.get_ec_offset())/10<<"s."<<std::endl;
 
 		std::cout<<"	Pump period is             : "<<static_cast<double>(arduino.get_pump_period())/1000<<"s."<<std::endl;
 		std::cout<<"	Pump duty cycle is         : "<<static_cast<double>(arduino.get_pump_duty_cycle())/1000<<"s."<<std::endl;
+
 		std::cout<<"	Lamp period is             : "<<static_cast<double>(arduino.get_lamp_period())/1000<<"s."<<std::endl;
 		std::cout<<"	Lamp duty cycle is         : "<<static_cast<double>(arduino.get_lamp_duty_cycle())/1000<<"s."<<std::endl;
 		std::cout<<std::endl<<std::endl;
+		sleep(3);
 	}
 
 

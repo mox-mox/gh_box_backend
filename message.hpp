@@ -33,7 +33,7 @@ class Message_interface_common
 		static constexpr uint8_t send_retries = 1;
 		static constexpr uint32_t void_data = 0;
 		static constexpr crc_sum ack_crc = 0;	// TODO
-		static constexpr crc_sum nack_crc = 0;	// TODO
+		static constexpr crc_sum nack_crc = 128;	// TODO
 
 		//{{{
 		enum class command: uint8_t
@@ -117,7 +117,7 @@ class Message_interface_common
 		{
 			(void) cmd;
 			(void) data;
-			return 0;	// TODO actual implementation
+			return 253;	// TODO actual implementation
 		}
 
 		virtual uint8_t get_uint8_t(void) = 0;
@@ -285,7 +285,7 @@ class Message_interface_common
 			switch(read(uart0_filestream, &retval, 1))
 			{
 				case 1:
-					//std::cout<<"						get_uint8_t() = "<<static_cast<int>(retval)<<std::endl;
+					std::cout<<"					get_uint8_t() = "<<static_cast<int>(retval)<<std::endl;
 					return retval;
 					break;
 				case 0:
@@ -303,7 +303,7 @@ class Message_interface_common
 			switch(write(uart0_filestream, &byte, 1))
 			{
 				case 1:
-					//std::cout<<"						put_uint8_t( "<<static_cast<int>(byte)<<" )"<<std::endl;
+					std::cout<<"							put_uint8_t( "<<static_cast<int>(byte)<<" )"<<std::endl;
 					return true;
 					break;
 				case 0:
