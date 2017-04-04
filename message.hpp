@@ -46,11 +46,18 @@ class Message_interface_common
 			get_temperature              =  10,
 			get_fan_status               =  11,
 			get_heater_status            =  12,
+			get_temperature_nominal      = 13,
+			get_temperature_plus_margin  = 14,
+			get_temperature_minus_margin = 14,
 			get_ph                       =  20,
 			get_ec                       =  30,
 			get_ec_offset                =  31,
 			get_lamp_status              =  40,
+			get_lamp_period              =  41,
+			get_lamp_duty_cycle          =  41,
 			get_pump_status              =  50,
+			get_pump_period              =  51,
+			get_pump_duty_cycle          =  52,
 
 			// Setters
 			// Temperature				// set_pump_period|PERIOD -> Arduino
@@ -207,7 +214,7 @@ class Message_interface_common
 		//}}}
 
 		//{{{
-		bool send_message(command cmd, uint32_t data)
+		bool send_message(command cmd, uint32_t data) // return false on failure
 		{
 			//std::cout<<"send_message( command cmd = "<<static_cast<int>(cmd)<<", uint32_t data = "<<data<<" )"<<std::endl;
 			message msg(cmd, data, calc_crc (cmd, data));
@@ -264,7 +271,8 @@ class Message_interface_common
 		int uart0_filestream = -1;
 
 		//{{{
-		void report_error(std::string error_message) override
+		//void report_error(std::string error_message) override
+		void report_error(const char* error_message) override
 		{
 			std::cerr<<error_message<<std::endl;
 		}
@@ -277,13 +285,13 @@ class Message_interface_common
 			switch(read(uart0_filestream, &retval, 1))
 			{
 				case 1:
-					std::cout<<"						get_uint8_t() = "<<static_cast<int>(retval)<<std::endl;
+					//std::cout<<"						get_uint8_t() = "<<static_cast<int>(retval)<<std::endl;
 					return retval;
 					break;
 				case 0:
 					break;
 				default:
-					report_error("Read error:\n\t"+std::string(strerror(errno)));
+					report_error(("Read error:\n\t"+std::string(strerror(errno))).c_str());
 			}
 		}
 		//}}}
@@ -295,13 +303,13 @@ class Message_interface_common
 			switch(write(uart0_filestream, &byte, 1))
 			{
 				case 1:
-					std::cout<<"						put_uint8_t( "<<static_cast<int>(byte)<<" )"<<std::endl;
+					//std::cout<<"						put_uint8_t( "<<static_cast<int>(byte)<<" )"<<std::endl;
 					return true;
 					break;
 				case 0:
 					break;
 				default:
-					report_error("Write error:\n\t"+std::string(strerror(errno)));
+					report_error(("Write error:\n\t"+std::string(strerror(errno))).c_str());
 			}
 			return false;
 		}
@@ -314,8 +322,8 @@ class Message_interface_common
 			ioctl(uart0_filestream, FIONREAD, &bytes_avail);
 			//std::cout<<"Please implement bytes_available(void)"<<std::endl;
 			//return 0;	// TODO
-			std::cout<<"		There are now "<<bytes_avail<<" bytes available for reading"<<std::endl;
-			sleep(1);
+			//std::cout<<"		There are now "<<bytes_avail<<" bytes available for reading"<<std::endl;
+			//sleep(1);
 			return bytes_avail;
 		}
 		//}}}
@@ -340,7 +348,7 @@ class Message_interface_common
 			//}}}
 			//{{{ Setters and Getters
 
-			//{{{ Setters
+			//{{{ Setters Note: Return true means it worked
 
 			//{{{
 			bool set_temp_sensor_period(uint32_t period)
@@ -412,32 +420,71 @@ class Message_interface_common
 
 			//{{{ Getters
 
+//
+//			//{{{
+//			uint32_t get_temperature(void)
+//			{
+//				//std::cout<<"	Trying to get temperature"<<std::endl;
+//				if(!send_message(command::get_temperature, void_data))
+//				{
+//					std::cout<<"get_temperature(): Aborting"<<std::endl;
+//					return -1;
+//				}
+//				//std::cout<<"	send request"<<std::endl;
+//
+//				uint32_t data = get_data(command::get_temperature);
+//				for(uint32_t avail=bytes_available(); avail; avail--)
+//				{
+//					get_uint8_t();
+//					//uint8_t byte = get_uint8_t();
+//					//std::cout<<"remaining byte: "<<byte<<std::endl;
+//				}
+//
+//				return data;
+//			}
+//			//}}}
+//
 			//{{{
 			uint32_t get_temperature(void)
 			{
-				std::cout<<"	Trying to get temperature"<<std::endl;
-				if(!send_message(command::get_temperature, void_data))
-				{
-					std::cout<<"get_temperature(): Aborting"<<std::endl;
-					return -1;
-				}
-				std::cout<<"	send request"<<std::endl;
+				if(!send_message(command::get_temperature, void_data)) return -1;
 
-				uint32_t data = get_data(command::get_temperature);
-				for(uint32_t avail=bytes_available(); avail; avail--)
-				{
-					get_uint8_t();
-					//uint8_t byte = get_uint8_t();
-					//std::cout<<"remaining byte: "<<byte<<std::endl;
-				}
-
-				return data;
+				return get_data(command::get_temperature);
 			}
 			//}}}
+
+			//{{{
+			uint32_t get_temperature_nominal(void)
+			{
+				if(!send_message(command::get_temperature_nominal, void_data)) return -1;
+
+				return get_data(command::get_temperature_nominal);
+			}
+			//}}}
+
+			//{{{
+			uint32_t get_temperature_plus_margin(void)
+			{
+				if(!send_message(command::get_temperature_plus_margin, void_data)) return -1;
+
+				return get_data(command::get_temperature_plus_margin);
+			}
+			//}}}
+
+			//{{{
+			uint32_t get_temperature_minus_margin(void)
+			{
+				if(!send_message(command::get_temperature_minus_margin, void_data)) return -1;
+
+				return get_data(command::get_temperature_minus_margin);
+			}
+			//}}}
+
+
 			//{{{
 			uint32_t get_fan_status(void)
 			{
-				if( send_message(command::get_fan_status, void_data)) return -1;
+				if(!send_message(command::get_fan_status, void_data)) return -1;
 
 				return get_data(command::get_fan_status);
 			}
@@ -445,7 +492,7 @@ class Message_interface_common
 			//{{{
 			uint32_t get_heater_status(void)
 			{
-				if( send_message(command::get_heater_status, void_data)) return -1;
+				if(!send_message(command::get_heater_status, void_data)) return -1;
 
 				return get_data(command::get_heater_status);
 			}
@@ -453,7 +500,7 @@ class Message_interface_common
 			//{{{
 			uint32_t get_ph(void)
 			{
-				if( send_message(command::get_ph, void_data)) return -1;
+				if(!send_message(command::get_ph, void_data)) return -1;
 
 				return get_data(command::get_ph);
 			}
@@ -461,7 +508,7 @@ class Message_interface_common
 			//{{{
 			uint32_t get_ec(void)
 			{
-				if( send_message(command::get_ec, void_data)) return -1;
+				if(!send_message(command::get_ec, void_data)) return -1;
 
 				return get_data(command::get_ec);
 			}
@@ -469,7 +516,7 @@ class Message_interface_common
 			//{{{
 			uint32_t get_ec_offset(void)
 			{
-				if( send_message(command::get_ec_offset, void_data)) return -1;
+				if(!send_message(command::get_ec_offset, void_data)) return -1;
 
 				return get_data(command::get_ec_offset);
 			}
@@ -477,17 +524,49 @@ class Message_interface_common
 			//{{{
 			uint32_t get_lamp_status(void)
 			{
-				if( send_message(command::get_lamp_status, void_data)) return -1;
+				if(!send_message(command::get_lamp_status, void_data)) return -1;
 
 				return get_data(command::get_lamp_status);
 			}
 			//}}}
 			//{{{
+			uint32_t get_lamp_period(void)
+			{
+				if(!send_message(command::get_lamp_period, void_data)) return -1;
+
+				return get_data(command::get_lamp_period);
+			}
+			//}}}
+			//{{{
+			uint32_t get_lamp_duty_cycle(void)
+			{
+				if(!send_message(command::get_lamp_duty_cycle, void_data)) return -1;
+
+				return get_data(command::get_lamp_duty_cycle);
+			}
+			//}}}
+			//{{{
 			uint32_t get_pump_status(void)
 			{
-				if( send_message(command::get_pump_status, void_data)) return -1;
+				if(!send_message(command::get_pump_status, void_data)) return -1;
 
 				return get_data(command::get_pump_status);
+			}
+			//}}}
+			//{{{
+			uint32_t get_pump_period(void)
+			{
+				if(!send_message(command::get_pump_period, void_data)) return -1;
+
+				return get_data(command::get_pump_period);
+			}
+			//}}}
+			//{{{
+			uint32_t get_pump_duty_cycle(void)
+			{
+				if(!send_message(command::get_pump_duty_cycle, void_data)) return -1;
+
+				return get_data(command::get_pump_duty_cycle);
 			}
 			//}}}
 			//}}}
@@ -566,6 +645,16 @@ class Message_interface_common
 						case command::get_temperature:
 							send_message(command::get_temperature, temp.get_value());
 							break;
+						case command::get_temperature_nominal:
+							send_message(command::get_temperature_nominal, temp.get_nominal_temperature());
+							break;
+						case command::get_temperature_plus_margin:
+							send_message(command::get_temperature_plus_margin, temp.get_plus_margin());
+							break;
+						case command::get_nominal_temperature_minus_margin:
+							send_message(command::get_temperature_minus_margin, temp.get_minus_margin());
+							break;
+
 						case command::get_fan_status:
 							send_message(command::get_fan_status, temp.fan.is_running());
 							break;
@@ -585,6 +674,22 @@ class Message_interface_common
 
 						case command::get_lamp_status:
 							send_message(command::get_lamp_status, lamp.is_running());
+							break;
+						case command::get_lamp_period:
+							send_message(command::get_lamp_period, lamp.get_period());
+							break;
+						case command::get_lamp_duty_cycle:
+							send_message(command::get_lamp_status, lamp.get_duty_cycle());
+							break;
+
+						case command::get_pump_status:
+							send_message(command::get_pump_status, pump.is_running());
+							break;
+						case command::get_pump_period:
+							send_message(command::get_pump_period, pump.get_period());
+							break;
+						case command::get_pump_duty_cycle:
+							send_message(command::get_pump_status, pump.get_duty_cycle());
 							break;
 						//}}}
 
