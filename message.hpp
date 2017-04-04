@@ -80,6 +80,19 @@ class Message_interface_common
 		};
 		//}}}
 
+
+		//{{{
+
+		enum class error_code: uint32_t
+		{
+			unspecified_error            = 0,
+			wrong_command                = 1,
+			bad_value                    = 2,
+		};
+
+		//}}}
+
+
 		//{{{
 		struct message
 		{
@@ -177,10 +190,10 @@ class Message_interface_common
 		//}}}
 
 		//{{{
-		uint8_t send_nack(void)
+		uint8_t send_nack(error_code error=error_code::unspecified_error)
 		{
 			//std::cout<<"send_nack()"<<std::endl;
-			transmit_message({ command::nack, void_data, nack_crc });
+			transmit_message({ command::nack, static_cast<uint32_t>(error), nack_crc });
 			return 1;	// the return value is for compound logic magic
 		}
 		//}}}
@@ -638,57 +651,71 @@ class Message_interface_common
 						continue;
 					}
 
-					send_ack();
 					switch( msg.cmd )
 					{
 						//{{{ Getters
 						case command::get_temperature:
+							send_ack();
 							send_message(command::get_temperature, temp.get_value());
 							break;
 						case command::get_temperature_nominal:
+							send_ack();
 							send_message(command::get_temperature_nominal, temp.get_nominal_temperature());
 							break;
 						case command::get_temperature_plus_margin:
+							send_ack();
 							send_message(command::get_temperature_plus_margin, temp.get_plus_margin());
 							break;
 						case command::get_temperature_minus_margin:
+							send_ack();
 							send_message(command::get_temperature_minus_margin, temp.get_minus_margin());
 							break;
 
 						case command::get_fan_status:
+							send_ack();
 							send_message(command::get_fan_status, temp.fan.is_running());
 							break;
 						case command::get_heater_status:
+							send_ack();
 							send_message(command::get_heater_status, temp.heater.is_running());
 							break;
 
 						case command::get_ph:
+							send_ack();
 							send_message(command::get_ph, ph.get_value());
 							break;
 
 						case command::get_ec:
+							send_ack();
 							send_message(command::get_ec, ec.get_value());
 							break;
 						case command::get_ec_offset:
+							send_ack();
 							send_message(command::get_ec_offset, ec.get_offset());
 
 						case command::get_lamp_status:
+							send_ack();
 							send_message(command::get_lamp_status, lamp.is_running());
 							break;
 						case command::get_lamp_period:
+							send_ack();
 							send_message(command::get_lamp_period, lamp.get_period());
 							break;
 						case command::get_lamp_duty_cycle:
+							send_ack();
 							send_message(command::get_lamp_duty_cycle, lamp.get_duty_cycle());
 							break;
 
 						case command::get_pump_status:
+							send_ack();
 							send_message(command::get_pump_status, pump.is_running());
 							break;
 						case command::get_pump_period:
+							send_ack();
 							send_message(command::get_pump_period, pump.get_period());
 							break;
 						case command::get_pump_duty_cycle:
+							send_ack();
 							send_message(command::get_pump_status, pump.get_duty_cycle());
 							break;
 						//}}}
@@ -699,44 +726,56 @@ class Message_interface_common
 						//		temp.set_period(msg.data);
 						//		break;
 
-						//	case command::set_nominal_temperature:
-						//		temp.set_nominal_temperature(msg.data);
-						//		break;
-						//	case command::set_temperature_margin_plus:
-						//		temp.set_plus_margin(msg.data);
-						//		break;
-						//	case command::set_temperature_margin_minus:
-						//		temp.set_minus_margin(msg.data);
-						//		break;
-						//	case command::set_ph_sensor_period:
-						//		ph.set_period(msg.data);
-						//		break;
-						//	case command::set_ec_sensor_period:
-						//		ec.set_period(msg.data);
-						//		break;
-						//	case command::set_ec_offset:
-						//		ec.set_offset(msg.data);
-						//		break;
-						//	case command::add_ec_offset:
-						//		ec.add_offset(msg.data);
-						//		break;
-						//	case command::set_lamp_period:
-						//		lamp.set_period(msg.data);
-						//		break;
-						//	case command::set_lamp_duty_cycle:
-						//		lamp.set_duty_cycle(msg.data);
-						//		break;
-						//	case command::set_pump_period:
-						//		pump.set_period(msg.data);
-						//		break;
-						//	case command::set_pump_duty_cycle:
-						//		pump.set_duty_cycle(msg.data);
-						//		break;
-						//	//}}}
+						case command::set_nominal_temperature:
+							send_ack();
+							temp.set_nominal_temperature(msg.data);
+							break;
+						case command::set_temperature_margin_plus:
+							send_ack();
+							temp.set_plus_margin(msg.data);
+							break;
+						case command::set_temperature_margin_minus:
+							send_ack();
+							temp.set_minus_margin(msg.data);
+							break;
+						case command::set_ph_sensor_period:
+							send_ack();
+							ph.set_period(msg.data);
+							break;
+						case command::set_ec_sensor_period:
+							send_ack();
+							ec.set_period(msg.data);
+							break;
+						case command::set_ec_offset:
+							send_ack();
+							ec.set_offset(msg.data);
+							break;
+						case command::add_ec_offset:
+							send_ack();
+							ec.add_offset(msg.data);
+							break;
+						case command::set_lamp_period:
+							send_ack();
+							lamp.set_period(msg.data);
+							break;
+						case command::set_lamp_duty_cycle:
+							send_ack();
+							lamp.set_duty_cycle(msg.data);
+							break;
+						case command::set_pump_period:
+							send_ack();
+							pump.set_period(msg.data);
+							break;
+						case command::set_pump_duty_cycle:
+							send_ack();
+							pump.set_duty_cycle(msg.data);
+							break;
+							//}}}
 
 						default:
+							send_nack(error_code::wrong_command);
 							//assert(false); // TODO better error handling
-							Serial.write("00000", 5);
+							//Serial.write("00000", 5);
 					}
 				}
 			}
