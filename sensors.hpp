@@ -66,7 +66,7 @@ class Temp_sensor: public Sensor
 		int t2;
 // Send the command to get temperatures
   sensor_backend.requestTemperatures();  
-  Serial.print("Temperature is: ");
+  //Serial.print("Temperature is: ");
  
  // Why "byIndex"? You can have more than one IC on the same bus. 0 refers to the first IC on the wire
   float t1=sensor_backend.getTempCByIndex(0)*10;
@@ -226,9 +226,9 @@ class PH_sensor: public Sensor
     avgValue+=buf[i];
   float phValue=(float)avgValue*5.0/1024/6; //convert the analog into millivolt
 	 phValue=3.5*phValue;                      //convert the millivolt into pH value
-  Serial.print("    pH:");  
-  Serial.print(phValue,2);
-  Serial.println(" ");
+  //Serial.print("    pH:");  
+  //Serial.print(phValue,2);
+  //Serial.println(" ");
   digitalWrite(13, HIGH);       
   delay(800);
   digitalWrite(13, LOW); 

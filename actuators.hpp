@@ -65,8 +65,8 @@ class Periodic_actuator : public Actuator
 
 		virtual void operator()(const uint32_t current_time)
 		{
-			if(!is_running() && (start_time+period     <= current_time)) start_actuator();
-			if( is_running() && (start_time+duty_cycle >= current_time)) stop_actuator();
+			if(!is_running() && (start_time+period     <= current_time)) start();
+			if( is_running() && (start_time+duty_cycle >= current_time)) stop();
 		}
 
 		void set_period(uint32_t period)

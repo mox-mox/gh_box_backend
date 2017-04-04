@@ -81,24 +81,10 @@ class Message_interface_common
 			crc_sum crc;
 			message(command cmd, uint32_t data, crc_sum crc) : cmd(cmd), data(data), crc(crc) { }
 			message() = default;
-			friend std::ostream& operator<<(std::ostream& lhs, message const& rhs)
-			{
-				lhs<<"message { "<<static_cast<int>(rhs.cmd)<<", "<<rhs.data<<", "<<static_cast<int>(rhs.crc)<<" }";
-				return lhs;
-			}
-			//friend message read_message(void)
+			//friend std::ostream& operator<<(std::ostream& lhs, message const& rhs)
 			//{
-			//	command cmd = static_cast<command>(get_uint8_t());
-			//	uint32_t data = get_uint32_t();
-			//	crc_sum crc = get_uint8_t();
-
-			//	return {cmd, data, crc};
-			//}
-			//friend void fill_message(message& msg)
-			//{
-			//	msg.cmd = static_cast<command>(get_uint8_t());
-			//	msg.data = get_uint32_t();
-			//	msg.crc = get_uint8_t();
+			//	lhs<<"message { "<<static_cast<int>(rhs.cmd)<<", "<<rhs.data<<", "<<static_cast<int>(rhs.crc)<<" }";
+			//	return lhs;
 			//}
 		}  __attribute__((packed));
 		message read_message(void)
@@ -146,22 +132,22 @@ class Message_interface_common
 
 		void transmit_message(const message& msg)	// must always succeed
 		{
-			std::cout<<"transmit_message("<<msg<<"):"<<std::endl;
+			//std::cout<<"transmit_message("<<msg<<"):"<<std::endl;
 			const uint8_t* msg_arr = reinterpret_cast<const uint8_t*>(&msg);
 
 			// Loop for each byte unitl it is really sent
 			while(!put_uint8_t(msg_arr[0])) ;	// Command
-			std::cout<<"	... "<<static_cast<int>(msg_arr[0])<<std::endl;
+			//std::cout<<"	... "<<static_cast<int>(msg_arr[0])<<std::endl;
 			while(!put_uint8_t(msg_arr[4])) ;	// Data[3] Data is sent in
-			std::cout<<"	... "<<static_cast<int>(msg_arr[4])<<std::endl;
+			//std::cout<<"	... "<<static_cast<int>(msg_arr[4])<<std::endl;
 			while(!put_uint8_t(msg_arr[3])) ;	// Data[2] reverse order to account
-			std::cout<<"	... "<<static_cast<int>(msg_arr[3])<<std::endl;
+			//std::cout<<"	... "<<static_cast<int>(msg_arr[3])<<std::endl;
 			while(!put_uint8_t(msg_arr[2])) ;	// Data[1] for the different
-			std::cout<<"	... "<<static_cast<int>(msg_arr[2])<<std::endl;
+			//std::cout<<"	... "<<static_cast<int>(msg_arr[2])<<std::endl;
 			while(!put_uint8_t(msg_arr[1])) ;	// Data[0] endianness of the host.
-			std::cout<<"	... "<<static_cast<int>(msg_arr[1])<<std::endl;
+			//std::cout<<"	... "<<static_cast<int>(msg_arr[1])<<std::endl;
 			while(!put_uint8_t(msg_arr[5])) ;	// Checksum
-			std::cout<<"	... "<<static_cast<int>(msg_arr[5])<<std::endl;
+			//std::cout<<"	... "<<static_cast<int>(msg_arr[5])<<std::endl;
 
 			//size_t n = sizeof(msg);
 			//while(n)	// Busy-loop until all data is force-fed into the UART
@@ -171,12 +157,13 @@ class Message_interface_common
 		}
 
 		virtual uint32_t bytes_available(void) = 0;
-		virtual void report_error(std::string error_message) = 0;
+		//virtual void report_error(std::string error_message) = 0;
+		virtual void report_error(const char* error_message) = 0;
 
 		//{{{
 		uint8_t send_ack(void)
 		{
-			std::cout<<"send_ack()"<<std::endl;
+			//std::cout<<"send_ack()"<<std::endl;
 			transmit_message({ command::ack, void_data, ack_crc });
 			return 0;	// the return value is for compound logic magic
 		}
@@ -185,7 +172,7 @@ class Message_interface_common
 		//{{{
 		uint8_t send_nack(void)
 		{
-			std::cout<<"send_nack()"<<std::endl;
+			//std::cout<<"send_nack()"<<std::endl;
 			transmit_message({ command::nack, void_data, nack_crc });
 			return 1;	// the return value is for compound logic magic
 		}
@@ -200,7 +187,7 @@ class Message_interface_common
 			//command cmd = static_cast < command > (get_uint8_t());
 
 			message msg = read_message();
-			std::cout<<"get_ack(): received "<<msg<<std::endl;
+			//std::cout<<"get_ack(): received "<<msg<<std::endl;
 
 
 			switch(msg.cmd)
@@ -212,7 +199,8 @@ class Message_interface_common
 				case command::nack:
 					break;
 				default:
-					report_error("Error: get_ack(): received command "+std::to_string(static_cast<int>(msg.cmd))+".");
+					//report_error("Error: get_ack(): received command "+std::to_string(static_cast<int>(msg.cmd))+".");
+					report_error("Error: get_ack(): received wrong command.");
 			}
 			return false;
 		}
@@ -221,21 +209,21 @@ class Message_interface_common
 		//{{{
 		bool send_message(command cmd, uint32_t data)
 		{
-			std::cout<<"send_message( command cmd = "<<static_cast<int>(cmd)<<", uint32_t data = "<<data<<" )"<<std::endl;
+			//std::cout<<"send_message( command cmd = "<<static_cast<int>(cmd)<<", uint32_t data = "<<data<<" )"<<std::endl;
 			message msg(cmd, data, calc_crc (cmd, data));
 			uint8_t i = send_retries;
 			do	// transmit up to send_retries times until we get an ACK
 			{
-				std::cout<<"send_message(): Sending "<<msg<<std::endl;
+				//std::cout<<"send_message(): Sending "<<msg<<std::endl;
 				transmit_message(msg);
 			} while( !get_ack(cmd) && --i );
 			if(i)
 			{
-				std::cout<<"send_message(): ... message sent and ack'ed"<<std::endl;
+				//std::cout<<"send_message(): ... message sent and ack'ed"<<std::endl;
 			}
 			else
 			{
-				std::cout<<"send_message(): ... failed to send message"<<std::endl;
+				//std::cout<<"send_message(): ... failed to send message"<<std::endl;
 			}
 
 			return i;
@@ -245,7 +233,7 @@ class Message_interface_common
 		//{{{
 		uint32_t get_data(command expected_cmd)
 		{
-			std::cout<<"get_data( command expected_cmd = "<<static_cast<int>(expected_cmd)<<" )"<<std::endl;
+			//std::cout<<"get_data( command expected_cmd = "<<static_cast<int>(expected_cmd)<<" )"<<std::endl;
 			while( bytes_available() < sizeof(message)) ;
 			message msg;
 			//uint32_t retval;
@@ -256,7 +244,7 @@ class Message_interface_common
 				//msg.data = get_uint32_t();
 				//msg.crc = get_uint8_t();
 				fill_message(msg);
-				std::cout<<"get_data(): received "<<msg<<std::endl;
+				//std::cout<<"get_data(): received "<<msg<<std::endl;
 			} while((msg.cmd != expected_cmd || msg.crc != calc_crc(msg.cmd, msg.data) || send_ack()) && send_nack() && --i );
 			//send_ack();
 
@@ -517,7 +505,8 @@ class Message_interface_common
 	{
 		//using Message_interface_common::Message_interface_common;
 		//{{{
-		void report_error(std::string& error_message) override
+		//void report_error(std::string& error_message) override
+		void report_error(const char* error_message) override
 		{
 			(void) error_message;
 			digitalWrite(ledPin, 1);
