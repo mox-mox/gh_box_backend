@@ -90,6 +90,8 @@ class Fenetre : public Gtk::Window {
 	Gtk::HBox demoH1_box;
 	Gtk::HBox demoH2_box;
 	Gtk::HBox demoH3_box;
+	Gtk::HBox demoH25_box;
+	Gtk::HBox demoH35_box;
 	Gtk::VBox demoV_box;
 
 
@@ -112,6 +114,8 @@ class Fenetre : public Gtk::Window {
 	Gtk::Label label_demo1;
 	Gtk::Label label_demo2;
 	Gtk::Label label_demo3;
+	Gtk::Label label_demo25;
+	Gtk::Label label_demo35;
 
 
 	Gtk::Button bouton_accueil_fonctionnement;
@@ -156,6 +160,8 @@ class Fenetre : public Gtk::Window {
 	Gtk::SpinButton spinbutton; //Bouton compteur
 	Gtk::SpinButton spin_pump_time; //Bouton compteur
 	Gtk::SpinButton spin_light_time; //Bouton compteur
+	Gtk::SpinButton spin_pump_intertime; //Bouton compteur
+	Gtk::SpinButton spin_light_intertime; //Bouton compteur
 	//Gtk::SpinButton spinbutton; //Bouton compteur
 	//Gtk::SpinButton spinbutton; //Bouton compteur
 
