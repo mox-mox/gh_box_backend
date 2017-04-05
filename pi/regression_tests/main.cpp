@@ -12,7 +12,7 @@ int main(void)
 		std::cout<<std::endl<<"==================="<<std::endl;
 		std::cout<<"Values:"<<std::endl;
 		std::cout<<"	Temperature is             : "<<static_cast<double>(arduino.get_temperature())/10<<std::endl;
-		std::cout<<"	PH is                      : "<<static_cast<double>(arduino.get_ph()/10)<<std::endl;
+		std::cout<<"	PH is                      : "<<static_cast<double>(arduino.get_ph())/100<<std::endl;
 		//std::cout<<"	EC is                      : "<<arduino.get_ec()<<std::endl;
 		//std::cout<<"	Pump is                    : "<<(arduino.get_pump_status()?"ON.":"OFF.")<<std::endl;
 		//std::cout<<"	Heater is                  : "<<(arduino.get_heater_status()?"ON.":"OFF.")<<std::endl;
