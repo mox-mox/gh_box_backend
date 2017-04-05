@@ -513,7 +513,7 @@ void Fenetre::changerpage(int page) {
 
 	cerr << "\npage : " << page << " et ec : " << produit1_ec;
 	cerr << "\npage : " << page << " et ph : " << produit1_ph;
-	if((( page == 3) || (page == 4)) && ((produit1_ph >= (ph_voulu + 1))||(produit1_ph <= (ph_voulu - 1))))
+	/*if((( page == 3) || (page == 4)) && ((produit1_ph >= (ph_voulu + 1))||(produit1_ph <= (ph_voulu - 1))))
 	{
 		page = 8;
 	}
@@ -521,7 +521,7 @@ void Fenetre::changerpage(int page) {
 	if((( page == 3) || (page == 4)) && ((produit1_ec >= (ec_voulu + 0.25))||(produit1_ec <= (ec_voulu - 0.25))))
 	{
 		page = 12;
-	}
+	}*/
 
 
 	barreOnglets.set_current_page (page);
