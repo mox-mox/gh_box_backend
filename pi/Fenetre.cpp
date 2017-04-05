@@ -65,7 +65,7 @@ bouton_accueil_demo("Choisir les paramètres")
 	produit1_ec= arduino.get_ec()/10;
 	//std::cout<<"++++++++++++++++ temp = "<<temp<<"+++++++++++++++++++++++++"<<std::endl;
 
-	produit1_ph= arduino.get_ph()/10;
+	produit1_ph= static_cast<double>(arduino.get_ph())/1000;
 	//std::cout<<"++++++++++++++++ temp = "<<temp<<"+++++++++++++++++++++++++"<<std::endl;
 
 	produit1_temperature= arduino.get_temperature()/10;
@@ -728,7 +728,7 @@ void Fenetre::onGoingPlant_setLabel()
     	string bigligne;
     	string bigline2;
     	int compteur = 0;
-    	produit1_ph = arduino.get_ph()/10;;
+    	produit1_ph= static_cast<double>(arduino.get_ph())/1000;
         produit1_temperature= arduino.get_temperature()/10;
         produit1_ec = arduino.get_ec()/10;;
     	temperature = ToString(produit1_temperature);
