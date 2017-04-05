@@ -311,6 +311,7 @@ bouton_accueil_demo("Choisir les paramètres")
     bouton_accueil_newPlant.signal_clicked().connect(sigc::bind<int>(sigc::mem_fun(*this, &Fenetre::changerpage), 3));
     bouton_accueil_onGoingPlant.signal_clicked().connect(sigc::bind<int>(sigc::mem_fun(*this, &Fenetre::changerpage), 4));
     bouton_accueil_seedsOrder.signal_clicked().connect(sigc::bind<int>(sigc::mem_fun(*this, &Fenetre::changerpage), 5));
+    bouton_accueil_demo.signal_clicked().connect(sigc::bind<int>(sigc::mem_fun(*this, &Fenetre::changerpage), 15));
     bouton_accueil_onGoingPlant.signal_clicked().connect(sigc::mem_fun(*this, &Fenetre::onGoingPlant_setLabel));
 
 
