@@ -228,6 +228,8 @@ class Fenetre : public Gtk::Window {
 	void on_spin_ec_changed();
 	void on_spin_ph_changed();
 	string ToString(int T);
+	string ToStringd(double T);
+
 };
 
 #endif
