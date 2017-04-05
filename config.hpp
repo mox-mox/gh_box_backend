@@ -15,15 +15,15 @@ extern Temp_sensor              temp;
 //extern Message                  communicate;
 
 // The pins
-#define HEATER_PIN                   9 // TODO: Insert correct value
-#define FAN_PIN                      8 // TODO: Insert correct value
-#define PUMP_PIN                     7 // TODO: Insert correct value
-#define LAMP_PIN                     10 // TODO: Insert correct value
+#define HEATER_PIN                   9
+#define FAN_PIN                      8
+#define PUMP_PIN                     7
+#define LAMP_PIN                     10
 
-#define TEMP_PIN                     2  
-#define PH_PIN                       0 // TODO: Insert correct value
-#define EC_PIN                       0 // TODO: Insert correct value
-#define EC_TEMP_PIN                  0
+#define TEMP_PIN                     2
+#define PH_PIN                       A0
+#define EC_PIN                       A1
+#define EC_TEMP_PIN                  4
 
 
 // Default times, all in milliseconds
