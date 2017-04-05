@@ -157,25 +157,26 @@ class Fenetre : public Gtk::Window {
 	int compteur1;
 	int jeanclaude;
 
-	int produit1_ph;
-	int produit1_temperature;
-	int produit1_ec;
-	int produit1_temps_pousse;
 
-	int produit2_ph;
-	int produit2_temperature;
-	int produit2_ec;
-	int produit2_temps_pousse;
+	uint32_t produit1_ph;
+	uint32_t produit1_temperature;
+	uint32_t produit1_ec;
+	uint32_t produit1_temps_pousse;
 
-	int produit3_ph;
-	int produit3_temperature;
-	int produit3_ec;
-	int produit3_temps_pousse;
+	uint32_t produit2_ph;
+	uint32_t produit2_temperature;
+	uint32_t produit2_ec;
+	uint32_t produit2_temps_pousse;
 
-	int produit4_ph;
-	int produit4_temperature;
-	int produit4_ec;
-	int produit4_temps_pousse;
+	uint32_t produit3_ph;
+	uint32_t produit3_temperature;
+	uint32_t produit3_ec;
+	uint32_t produit3_temps_pousse;
+
+	uint32_t produit4_ph;
+	uint32_t produit4_temperature;
+	uint32_t produit4_ec;
+	uint32_t produit4_temps_pousse;
 
 	string temperature;
 	string PH;
