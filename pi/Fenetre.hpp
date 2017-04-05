@@ -186,7 +186,7 @@ class Fenetre : public Gtk::Window {
 	int jeanclaude;
 
 
-	uint32_t produit1_ph;
+	double produit1_ph;
 	uint32_t produit1_temperature;
 	uint32_t produit1_ec;
 	uint32_t produit1_temps_pousse;
