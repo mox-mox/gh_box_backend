@@ -513,8 +513,9 @@ void Fenetre::changerpage(int page) {
 
 	if(page==5)
 	{
-		testvalue = spinbutton.get_value();
-		cerr << "La valeur de jean est : " << spinbutton << "\n";
+		testvalue = spinbutton.get_value_as_int();
+		cerr << "Hello" << testvalue;
+		//cerr << "La valeur de jean est : " << spinbutton << "\n";
 		//cerr << "La valeur du bouton est : " << spinbutton;
 	}
 
