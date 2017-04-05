@@ -34,11 +34,15 @@ extern Temp_sensor              temp;
 #define SAMPLING_PERIOD_PH           500
 #define SAMPLING_PERIOD_EC           500
 
-#define PUMP_PERIOD                  15*60*1000
-#define PUMP_DUTY_CYCLE              1*60*1000
+#define PUMP_PERIOD                  1000
+#define PUMP_DUTY_CYCLE              800
+//#define PUMP_PERIOD                  15*60*1000
+//#define PUMP_DUTY_CYCLE              1*60*1000
 
-#define LAMP_PERIOD                  24*60*60*1000
-#define LAMP_DUTY_CYCLE              12*60*60*1000
+//#define LAMP_PERIOD                  24*60*60*1000
+//#define LAMP_DUTY_CYCLE              12*60*60*1000
+#define LAMP_PERIOD                  200000ul
+#define LAMP_DUTY_CYCLE              100000ul
 
 #define MESSAGE_PERIOD_SLOW          500
 #define MESSAGE_PERIOD_FAST          50
