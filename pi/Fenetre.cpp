@@ -61,6 +61,11 @@ bouton_accueil_demo("Choisir les paramètres")
 	resize(500, 285);
 	set_position(Gtk::WIN_POS_CENTER);
 
+	ph_voulu = 5.5;
+	temp_voulu = 20;
+	ec_voulu = 0.75
+
+
 
 	produit1_ec= arduino.get_ec()/10;
 	//std::cout<<"++++++++++++++++ temp = "<<temp<<"+++++++++++++++++++++++++"<<std::endl;
@@ -508,15 +513,15 @@ void Fenetre::changerpage(int page) {
 
 	cerr << "\npage : " << page << " et ec : " << produit1_ec;
 	cerr << "\npage : " << page << " et ph : " << produit1_ph;
-	/*if((( page == 3) || (page == 4)) && ((produit1_ph >= 7)||(produit1_ph <= 5 )))
+	if((( page == 3) || (page == 4)) && ((produit1_ph >= (ph_voulu + 1)||(produit1_ph <= (ph_voulu - 1) )))
 	{
 		page = 8;
 	}
 
-	if((( page == 3) || (page == 4)) && ((produit1_ec >= 15)||(produit1_ec <= 5 )))
+	if((( page == 3) || (page == 4)) && ((produit1_ec >= (ec_voulu + 0.25)||(produit1_ec <= (ec_voulu - 0.25) )))
 	{
 		page = 12;
-	}*/
+	}
 
 
 	barreOnglets.set_current_page (page);
@@ -734,7 +739,7 @@ void Fenetre::onGoingPlant_setLabel()
         produit1_ec = arduino.get_ec()/10;;
     	temperature = ToString(produit1_temperature);
     	PH = ToStringd(produit1_ph);
-    	EC = ToString(produit1_ec);
+    	EC = ToStringf(produit1_ec);
 
     	bigline2 = "\n\n Temperature : " + temperature + "\n Electro-conductivité : " + EC +"\n PH : "  + PH;
 
@@ -829,44 +834,44 @@ void Fenetre::setparametres(string produit)
         		compteur1++;
         		cerr << "compteur vaut  dans boucle" << compteur1;
         	}
-        	if(compteur1==0)
-        	{
+        	/*if(compteur1==0)
+        	{*/
         		cerr << "compteur vaut 0";
        			cerr << "produit : " << produit;
         		if(strcmp(produit.c_str(), "Tomates") == 0)
         		{
         			cerr << "compteur == 0 et tomates" << endl;
-        			produit1_ph = arduino.get_ph()/10;;
-        			produit1_temperature= arduino.get_temperature()/10;
-        			produit1_ec = arduino.get_ec()/10;;
-        			produit1_temps_pousse = 30*24;	
+        			ph_voulu = 6;
+        			temp_voulu = 20;
+        			ec_voulu = 0.75;
+        			//produit1_temps_pousse = 30*24;	
         		}
         		if(strcmp(produit.c_str(), "Salade") == 0)
         		{
         			cerr << "compteur == 0 et salade" << endl;
-        			produit1_ph = arduino.get_ph()/10;;
-        			produit1_temperature= arduino.get_temperature()/10;
-        			produit1_ec = arduino.get_ec()/10;;
-        			produit1_temps_pousse = 30*24;
+        			ph_voulu = 5.5 ;
+        			temp_voulu = 20;
+        			ec_voulu = 0.75;
+        			//produit1_temps_pousse = 30*24;
         		}
         		if(strcmp(produit.c_str(), "Fraises") == 0)
         		{
         			cerr << "compteur == 0 et fraise" << endl;
-        			produit1_ph = arduino.get_ph()/10;;
-        			produit1_temperature= arduino.get_temperature()/10;
-        			produit1_ec = arduino.get_ec()/10;;
-        			produit1_temps_pousse = 30*24;
+        			ph_voulu = 5.5 ;
+        			temp_voulu = 20;
+        			ec_voulu = 0.75
+        			//produit1_temps_pousse = 30*24;
         		}
         		if(strcmp(produit.c_str(), "Basilic") == 0)
         		{
         			cerr << "compteur == 0 et basilic" << endl;
-        			produit1_ph = arduino.get_ph()/10;;
-        			produit1_temperature= arduino.get_temperature()/10;
-        			produit1_ec = arduino.get_ec()/10;;
-        			produit1_temps_pousse = 30*24;
+        			ph_voulu = 6 ;
+        			temp_voulu = 20;
+        			ec_voulu = 0.75;
+        			//produit1_temps_pousse = 30*24;
         		}
-        	}
-        	if(compteur1==1)
+        	//}
+        	/*if(compteur1==1)
         	{
         		cerr << "compteur vaut 1";
         		cerr << "produit : " << produit;
@@ -965,7 +970,7 @@ void Fenetre::setparametres(string produit)
         			produit4_ec = arduino.get_ec()/10;;
         			produit4_temps_pousse = 30*24;
         		}
-        	}
+        	}*/
         }
     	else  // sinon
     	{
@@ -984,6 +989,13 @@ string Fenetre::ToString(int T)
 }
 
 string Fenetre::ToStringd(double T)
+{
+    stringstream stream;
+    stream << T;
+    return stream.str();
+}
+
+string Fenetre::ToStringf(float T)
 {
     stringstream stream;
     stream << T;
