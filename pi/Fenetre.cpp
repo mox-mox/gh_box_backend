@@ -140,7 +140,7 @@ bouton_accueil_demo("Choisir les paramètres")
 	spin_pump_intertime.set_range(0, 60);
 	spin_pump_intertime.set_value(15);
 	spin_pump_intertime.set_increments(1, 10);
-	spin_pump_intertime.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_pump_intertime_changed());
+	spin_pump_intertime.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_pump_intertime_changed));
 
 	spin_light_intertime.set_range(0, 24);
 	spin_light_intertime.set_value(24);
