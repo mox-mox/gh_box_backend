@@ -95,50 +95,50 @@ class Temp_sensor: public Sensor
 	}
 
 	public:
-		Actuator heater;
-		Actuator fan;
+	Actuator heater;
+	Actuator fan;
 
-		Temp_sensor(uint8_t sensing_pin,
-		            uint8_t heater_pin,
-		            uint8_t fan_pin,
-		            uint32_t sampling_period,
-		            uint32_t nominal_temperature,
-		            uint32_t temperature_plus_margin = 0,
-		            uint32_t temperature_minus_margin = 0) : Sensor(sensing_pin, sampling_period),
-			nominal_temperature(nominal_temperature),
-			temperature_plus_margin(temperature_plus_margin ? temperature_plus_margin : 100),
-			temperature_minus_margin(temperature_minus_margin ? temperature_minus_margin : (temperature_plus_margin ? temperature_plus_margin : 100)),
-			one_wire_interface(sensing_pin),
-			sensor_backend(&one_wire_interface),
-			heater(heater_pin),
-			fan(fan_pin)
-		{}
+	Temp_sensor(uint8_t sensing_pin,
+			uint8_t heater_pin,
+			uint8_t fan_pin,
+			uint32_t sampling_period,
+			uint32_t nominal_temperature,
+			uint32_t temperature_plus_margin = 0,
+			uint32_t temperature_minus_margin = 0) : Sensor(sensing_pin, sampling_period),
+	nominal_temperature(nominal_temperature),
+	temperature_plus_margin(temperature_plus_margin ? temperature_plus_margin : 100),
+	temperature_minus_margin(temperature_minus_margin ? temperature_minus_margin : (temperature_plus_margin ? temperature_plus_margin : 100)),
+	one_wire_interface(sensing_pin),
+	sensor_backend(&one_wire_interface),
+	heater(heater_pin),
+	fan(fan_pin)
+	{}
 
-		void set_nominal_temperature(uint32_t temperature)
-		{
-			nominal_temperature = temperature;
-		}
-		void set_plus_margin(uint32_t margin)
-		{
-			temperature_plus_margin = margin;
-		}
-		void set_minus_margin(uint32_t margin)
-		{
-			temperature_minus_margin = margin;
-		}
+	void set_nominal_temperature(uint32_t temperature)
+	{
+		nominal_temperature = temperature;
+	}
+	void set_plus_margin(uint32_t margin)
+	{
+		temperature_plus_margin = margin;
+	}
+	void set_minus_margin(uint32_t margin)
+	{
+		temperature_minus_margin = margin;
+	}
 
-		uint32_t get_nominal_temperature(void)
-		{
-			return nominal_temperature;
-		}
-		uint32_t get_plus_margin(void)
-		{
-			return temperature_plus_margin;
-		}
-		uint32_t get_minus_margin(void)
-		{
-			return temperature_minus_margin;
-		}
+	uint32_t get_nominal_temperature(void)
+	{
+		return nominal_temperature;
+	}
+	uint32_t get_plus_margin(void)
+	{
+		return temperature_plus_margin;
+	}
+	uint32_t get_minus_margin(void)
+	{
+		return temperature_minus_margin;
+	}
 };
 //}}}
 
@@ -154,7 +154,7 @@ class EC_sensor: public Sensor
 
 	uint32_t measure(void) const	// Return the current sensor read out
 	{
-		
+
 	}
 	// Some stuff like an array for low-pass filtering, etc.
 
@@ -164,18 +164,18 @@ class EC_sensor: public Sensor
 		value = measure;
 	}
 	public:
-		static void add_offset(int32_t offset)
-		{
-			current_offset += offset;
-		}
-		static void set_offset(int32_t offset)
-		{
-			current_offset = offset;
-		}
-		static int32_t get_offset(void)
-		{
-			return current_offset;
-		}
+	static void add_offset(int32_t offset)
+	{
+		current_offset += offset;
+	}
+	static void set_offset(int32_t offset)
+	{
+		current_offset = offset;
+	}
+	static int32_t get_offset(void)
+	{
+		return current_offset;
+	}
 };
 
 int32_t EC_sensor::current_offset = 77;
@@ -187,42 +187,19 @@ class PH_sensor: public Sensor
 {
 	using Sensor::Sensor;
 	// Some stuff like an array for low-pass filtering, etc.
-  
-	uint32_t measure(void) const// Return the current sensor read out
-	{
-  
- unsigned long int avgValue;  //Store the average value of the sensor feedback
- float b;
- int buf[10],temp;
-  
-   for(int i=0;i<10;i++)       //Get 10 sample value from the sensor for smooth the value
-  { 
-    buf[i]=analogRead(sensing_pin);
-    delay(10);
-  }
-  for(int i=0;i<9;i++)        //sort the analog from small to large
-  {
-    for(int j=i+1;j<10;j++)
-    {
-      if(buf[i]>buf[j])
-      {
-        temp=buf[i];
-        buf[i]=buf[j];
-        buf[j]=temp;
-      }
-    }
-  }
-  avgValue=0;
-  for(int i=2;i<8;i++)                      //take the average value of 6 center sample
-   avgValue+=buf[i];
-  float phValue=(float)avgValue*5.0/1024/6; //convert the analog into millivolt
-  phValue=3.5*phValue;
-  int casted_ph_value=(int) (phValue*10);
-  return casted_ph_value;
-  digitalWrite(13, HIGH);       
-  delay(100);
-  digitalWrite(13, LOW);
 
+	uint32_t measure(void) const// Return PH value multplied by 1000
+	{
+		static constexpr uint8_t num_samples = 5;
+
+		uint32_t avgValue=0;
+		for(int i=0;i<num_samples;i++)
+		{ 
+			avgValue += analogRead(sensing_pin);
+			delay(10);
+		}
+
+		return (avgValue)*3.5*5.0*1000/1024/num_samples;
 	}
 
 	void process(uint32_t measure)
