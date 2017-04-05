@@ -25,7 +25,7 @@
 #include <gtkmm/radiobutton.h>
 #include <sstream>
 //#include <cstdint>
-//#include "message.hpp"	
+#include "message.hpp"	
 
 
 using namespace std;
@@ -39,6 +39,7 @@ class Fenetre : public Gtk::Window {
 	
         
     private :
+	Message_interface arduino;
     Gtk::Notebook barreOnglets;
     Gtk::HButtonBox boiteBoutonsH;
 

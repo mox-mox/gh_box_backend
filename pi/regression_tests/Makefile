@@ -1,6 +1,6 @@
 
 
-CFLAGS := -Wall -Wextra -Wpedantic -Werror -Wfatal-errors -std=c++14 -I..
+CFLAGS := -Wall -Wextra -Wpedantic -Werror -Wfatal-errors -std=c++14 -I../..
 
 
 all: main

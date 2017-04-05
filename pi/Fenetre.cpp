@@ -1,6 +1,7 @@
 #include "Fenetre.hpp"
 
 Fenetre::Fenetre() : 
+	arduino(),
 bouton_accueil_fonctionnement("Fonctionnement du système"), 
 bouton_accueil_newPlant("Placer une nouvelle plante"),
 bouton_accueil_onGoingPlant("Voir les plantes en cours"), 
@@ -51,7 +52,9 @@ bouton_attenteplante_confirmation("Confirmer")
 
 	produit1_ec = 12;
 	produit1_ph = 6;
-	produit1_temperature = 20;
+	uint32_t temp = arduino.get_temperature()/10;
+	std::cout<<"++++++++++++++++ temp = "<<temp<<"+++++++++++++++++++++++++"<<std::endl;
+	produit1_temperature = temp;
 
 	label_phProblem.set_line_wrap();
 	label_phProblem.set_markup("Erreur de pH détectée, veuillez contrôler le niveau du pH et appuyer sur <b>Continuer</b> lorque le niveau  est mis à jour. Si vous souhaitez des explications sur cette manipulation, appuyez sur <b>Explication</b>");
