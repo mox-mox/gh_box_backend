@@ -92,6 +92,9 @@ class Fenetre : public Gtk::Window {
 	Gtk::HBox demoH3_box;
 	Gtk::HBox demoH25_box;
 	Gtk::HBox demoH35_box;
+	Gtk::HBox demoH4_box;
+	Gtk::HBox demoH5_box;
+	Gtk::HBox demoH6_box;
 	Gtk::VBox demoV_box;
 
 
@@ -116,6 +119,9 @@ class Fenetre : public Gtk::Window {
 	Gtk::Label label_demo3;
 	Gtk::Label label_demo25;
 	Gtk::Label label_demo35;
+	Gtk::Label label_demo4;
+	Gtk::Label label_demo5;
+	Gtk::Label label_demo6;
 
 
 	Gtk::Button bouton_accueil_fonctionnement;
@@ -162,6 +168,9 @@ class Fenetre : public Gtk::Window {
 	Gtk::SpinButton spin_light_time; //Bouton compteur
 	Gtk::SpinButton spin_pump_intertime; //Bouton compteur
 	Gtk::SpinButton spin_light_intertime; //Bouton compteur
+	Gtk::SpinButton spin_ph; //Bouton compteur
+	Gtk::SpinButton spin_ec; //Bouton compteur
+	Gtk::SpinButton spin_temp; //Bouton compteur
 	//Gtk::SpinButton spinbutton; //Bouton compteur
 	//Gtk::SpinButton spinbutton; //Bouton compteur
 
@@ -215,6 +224,9 @@ class Fenetre : public Gtk::Window {
 	void compterligne();
 	void enleverPlante(string produit);
 	void setparametres(string produit);
+	void on_spin_temp_changed();
+	void on_spin_ec_changed();
+	void on_spin_ph_changed();
 	string ToString(int T);
 };
 

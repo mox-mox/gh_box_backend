@@ -52,6 +52,9 @@ label_demo2("Choisissez le temps d'allumage de la pompe (en minutes)"),
 label_demo3("Choisissez le temps d'allumage des lumières (en heures)"),
 label_demo25("Choisissez le temps entre 2 activations de la pompe (en minutes)"),
 label_demo35("Choisissez le temps entre 2 allumages des lumières (en heures)"),
+label_demo4("Choisissez le PH"),
+label_demo5("Choisissez l'electroconductivité"),
+label_demo6("Choisissez la température"),
 bouton_accueil_demo("Choisir les paramètres")
 {
 	jeanclaude = 3;
@@ -120,6 +123,9 @@ bouton_accueil_demo("Choisir les paramètres")
 	add(demoH25_box);
 	add(demoH35_box);
 	add(demoH3_box);
+	add(demoH4_box);
+	add(demoH5_box);
+	add(demoH6_box);
 	add(demoV_box);
 
 	spinbutton.set_range(0, 100);
@@ -146,6 +152,21 @@ bouton_accueil_demo("Choisir les paramètres")
 	spin_light_intertime.set_value(24);
 	spin_light_intertime.set_increments(1, 10);
 	spin_light_intertime.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_light_intertime_changed));
+
+	spin_ec.set_range(0, 24);
+	spin_ec.set_value(24);
+	spin_ec.set_increments(1, 10);
+	spin_ec.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_ec_changed));
+
+	spin_ph.set_range(0, 24);
+	spin_ph.set_value(24);
+	spin_ph.set_increments(1, 10);
+	spin_ph.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_ph_changed));
+
+	spin_light_temp.set_range(0, 24);
+	spin_light_temp.set_value(24);
+	spin_light_temp.set_increments(1, 10);
+	spin_light_temp.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_temp_changed));
 
 	
 	plante1.set("tomato.png");
@@ -279,6 +300,15 @@ bouton_accueil_demo("Choisir les paramètres")
 
 	demoH35_box.pack_start(label_demo35);
 	demoH35_box.pack_start(spin_light_intertime);
+
+	demoH4_box.pack_start(label_demo4);
+	demoH4_box.pack_start(spin_ph);
+
+	demoH5_box.pack_start(label_demo5);
+	demoH5_box.pack_start(spin_ec);
+
+	demoH6_box.pack_start(label_demo6);
+	demoH6_box.pack_start(spin_temp);
 
 	demoH3_box.pack_start(bouton_demo_acceuil);
 	demoH3_box.pack_start(bouton_demo_confirmation);
@@ -517,6 +547,21 @@ void Fenetre::on_spin_pump_intertime_changed()
 }
 
 void Fenetre::on_spin_light_intertime_changed()
+{
+	int value = spin_light_intertime.get_value_as_int();
+}
+
+void Fenetre::on_spin_ph_changed()
+{
+	int value = spin_light_intertime.get_value_as_int();
+}
+
+void Fenetre::on_spin_ec_changed()
+{
+	int value = spin_light_intertime.get_value_as_int();
+}
+
+void Fenetre::on_spin_temp_changed()
 {
 	int value = spin_light_intertime.get_value_as_int();
 }
