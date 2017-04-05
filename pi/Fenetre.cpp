@@ -44,17 +44,27 @@ boutonRadio2(groupe, "Plante 2"),
 boutonRadio3(groupe, "Plante 3"),
 boutonRadio4(groupe, "Plante 4"),
 bouton_attenteplante_accueil("Annuler et retourner à l'accueil"),
-bouton_attenteplante_confirmation("Confirmer")
+bouton_attenteplante_confirmation("Confirmer"),
+bouton_demo_acceuil("Retour"),
+bouton_demo_confirmation("Valider ces paramètres"),
+label_demo1("Choisissez les paramètres de culture"),
+label_demo2("Choisissez le temps d'allumage de la pompe"),
+label_demo3("Choissiez le temps d'allumage des lumières"),
+bouton_accueil_demo("Choisir les paramètres")
 {
 	jeanclaude = 3;
 	resize(500, 285);
 	set_position(Gtk::WIN_POS_CENTER);
 
-	produit1_ec = 12;
-	produit1_ph = 6;
-	uint32_t temp = arduino.get_temperature()/10;
-	std::cout<<"++++++++++++++++ temp = "<<temp<<"+++++++++++++++++++++++++"<<std::endl;
-	produit1_temperature = temp;
+
+	produit1_ec= arduino.get_ec()/10;
+	//std::cout<<"++++++++++++++++ temp = "<<temp<<"+++++++++++++++++++++++++"<<std::endl;
+
+	produit1_ph= arduino.get_ph()/10;
+	//std::cout<<"++++++++++++++++ temp = "<<temp<<"+++++++++++++++++++++++++"<<std::endl;
+
+	produit1_temperature= arduino.get_temperature()/10;
+	//std::cout<<"++++++++++++++++ temp = "<<temp<<"+++++++++++++++++++++++++"<<std::endl;
 
 	label_phProblem.set_line_wrap();
 	label_phProblem.set_markup("Erreur de pH détectée, veuillez contrôler le niveau du pH et appuyer sur <b>Continuer</b> lorque le niveau  est mis à jour. Si vous souhaitez des explications sur cette manipulation, appuyez sur <b>Explication</b>");
@@ -103,11 +113,25 @@ bouton_attenteplante_confirmation("Confirmer")
 	add(onGoingPlant2H2_box);
 	add(attenteplanteH_box);
 	add(attenteplanteV_box);
+	add(demoH1_box);
+	add(demoH2_box);
+	add(demoH3_box);
+	add(demoV_box);
 
 	spinbutton.set_range(0, 100);
 	spinbutton.set_value(1);
 	spinbutton.set_increments(1, 10);
 	spinbutton.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spinbutton_changed));
+
+	spin_pump_time.set_range(0, 100);
+	spin_pump_time.set_value(1);
+	spin_pump_time.set_increments(1, 10);
+	spin_pump_time.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_pump_time_changed));
+
+	spin_light_time.set_range(0, 100);
+	spin_light_time.set_value(1);
+	spin_light_time.set_increments(1, 10);
+	spin_light_time.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_light_time_changed));
 	
 	plante1.set("tomato.png");
 	plante2.set("salade.png");
@@ -118,11 +142,6 @@ bouton_attenteplante_confirmation("Confirmer")
 	validate.set("validate.png");
 	validate2.set("validate.png");
 	erreur.set("erreur.png");
-
-	acceuil_box.pack_start(bouton_accueil_fonctionnement);
-	acceuil_box.pack_start(bouton_accueil_newPlant);
-	acceuil_box.pack_start(bouton_accueil_onGoingPlant);
-	acceuil_box.pack_start(bouton_accueil_seedsOrder);
 
 	fonctionnement_box.pack_start(label_fonctionnement);
 	fonctionnement_box.pack_start(bouton_fonctionnement_acceuil);
@@ -234,6 +253,29 @@ bouton_attenteplante_confirmation("Confirmer")
 	attenteplanteV_box.pack_start(label_attenteplante);
 	attenteplanteV_box.pack_start(attenteplanteH_box);
 
+	demoH1_box.pack_start(label_demo2);
+	demoH1_box.pack_start(spin_pump_time);
+
+	demoH2_box.pack_start(label_demo3);
+	demoH2_box.pack_start(spin_light_time);
+
+	demoH3_box.pack_start(bouton_demo_acceuil);
+	demoH3_box.pack_start(bouton_demo_confirmation);
+
+	demoV_box.pack_start(label_demo1);
+	demoV_box.pack_start(demoH1_box);
+	demoV_box.pack_start(demoH2_box);
+	demoV_box.pack_start(demoH3_box);
+
+
+	acceuil_box.pack_start(bouton_accueil_fonctionnement);
+	acceuil_box.pack_start(bouton_accueil_newPlant);
+	acceuil_box.pack_start(bouton_accueil_onGoingPlant);
+	acceuil_box.pack_start(bouton_accueil_demo);
+	acceuil_box.pack_start(bouton_accueil_seedsOrder);
+
+
+
 	listeDeroulante.append("Tomates");
 	listeDeroulante.append("Fraise");
 	listeDeroulante.append("Basilic");
@@ -269,6 +311,7 @@ bouton_attenteplante_confirmation("Confirmer")
     bouton_accueil_newPlant.signal_clicked().connect(sigc::bind<int>(sigc::mem_fun(*this, &Fenetre::changerpage), 3));
     bouton_accueil_onGoingPlant.signal_clicked().connect(sigc::bind<int>(sigc::mem_fun(*this, &Fenetre::changerpage), 4));
     bouton_accueil_seedsOrder.signal_clicked().connect(sigc::bind<int>(sigc::mem_fun(*this, &Fenetre::changerpage), 5));
+    bouton_accueil_demo.signal_clicked().connect(sigc::bind<int>(sigc::mem_fun(*this, &Fenetre::changerpage), 15));
     bouton_accueil_onGoingPlant.signal_clicked().connect(sigc::mem_fun(*this, &Fenetre::onGoingPlant_setLabel));
 
 
@@ -369,6 +412,11 @@ bouton_attenteplante_confirmation("Confirmer")
     //Ajout de l'onglet 14 avec "Retrait réussi" écrit sur l'onglet.
     barreOnglets.append_page(removeSuccessfulV_box, "Retrait réussi");
     bouton_removeSuccessful_acceuil.signal_clicked().connect(sigc::bind<int>(sigc::mem_fun(*this, &Fenetre::changerpage), 1));
+
+    //Ajout de l'onglet 15 avec "Parametres" écrit sur l'onglet.
+    barreOnglets.append_page(demoV_box, "Paramètres");
+    bouton_demo_acceuil.signal_clicked().connect(sigc::bind<int>(sigc::mem_fun(*this, &Fenetre::changerpage), 1));
+    bouton_demo_confirmation.signal_clicked().connect(sigc::bind<int>(sigc::mem_fun(*this, &Fenetre::changerpage), 1));
  	
 
     barreOnglets.set_show_tabs(false);
@@ -429,6 +477,18 @@ void Fenetre::on_spinbutton_changed()
 {
 	int value = spinbutton.get_value_as_int();
 }
+
+void Fenetre::on_spin_pump_time_changed()
+{
+	int value = spin_pump_time.get_value_as_int();
+}
+
+void Fenetre::on_spin_light_time_changed()
+{
+	int value = spin_light_time.get_value_as_int();
+}
+
+
 
 void Fenetre::compterligne()
 {
@@ -691,33 +751,33 @@ void Fenetre::setparametres(string produit)
         		if(strcmp(produit.c_str(), "Tomates") == 0)
         		{
         			cerr << "compteur == 0 et tomates" << endl;
-        			produit1_ph = 6;
-        			produit1_temperature = 20;
-        			produit1_ec = 12;
+        			produit1_ph = arduino.get_ph()/10;;
+        			produit1_temperature= arduino.get_temperature()/10;
+        			produit1_ec = arduino.get_ec()/10;;
         			produit1_temps_pousse = 30*24;	
         		}
         		if(strcmp(produit.c_str(), "Salade") == 0)
         		{
         			cerr << "compteur == 0 et salade" << endl;
-        			produit1_ph = 6;
-        			produit1_temperature = 20;
-        			produit1_ec = 12;
+        			produit1_ph = arduino.get_ph()/10;;
+        			produit1_temperature= arduino.get_temperature()/10;
+        			produit1_ec = arduino.get_ec()/10;;
         			produit1_temps_pousse = 30*24;
         		}
         		if(strcmp(produit.c_str(), "Fraises") == 0)
         		{
         			cerr << "compteur == 0 et fraise" << endl;
-        			produit1_ph = 6;
-        			produit1_temperature = 20;
-        			produit1_ec = 12;
+        			produit1_ph = arduino.get_ph()/10;;
+        			produit1_temperature= arduino.get_temperature()/10;
+        			produit1_ec = arduino.get_ec()/10;;
         			produit1_temps_pousse = 30*24;
         		}
         		if(strcmp(produit.c_str(), "Basilic") == 0)
         		{
         			cerr << "compteur == 0 et basilic" << endl;
-        			produit1_ph = 6;
-        			produit1_temperature = 20;
-        			produit1_ec = 12;
+        			produit1_ph = arduino.get_ph()/10;;
+        			produit1_temperature= arduino.get_temperature()/10;
+        			produit1_ec = arduino.get_ec()/10;;
         			produit1_temps_pousse = 30*24;
         		}
         	}
@@ -728,30 +788,30 @@ void Fenetre::setparametres(string produit)
         		if(strcmp(produit.c_str(), "Tomates") == 0)
         		{
         			cerr << "compteur == 1 et tomates" << endl;
-        			produit2_ph = 6;
-        			produit2_temperature = 20;
-        			produit2_ec = 12;
+        			produit2_ph = arduino.get_ph()/10;;
+        			produit2_temperature= arduino.get_temperature()/10;
+        			produit2_ec = arduino.get_ec()/10;;
         			produit2_temps_pousse = 30*24;
         		}
         		if(strcmp(produit.c_str(), "Salade") == 0)
         		{
-        			produit2_ph = 6;
-        			produit2_temperature = 20;
-        			produit2_ec = 12;
+        			produit2_ph = arduino.get_ph()/10;;
+        			produit2_temperature= arduino.get_temperature()/10;
+        			produit2_ec = arduino.get_ec()/10;;
         			produit2_temps_pousse = 30*24;
         		}
         		if(strcmp(produit.c_str(), "Fraises") == 0)
         		{
-        			produit2_ph = 6;
-        			produit2_temperature = 20;
-        			produit2_ec = 12;
+        			produit2_ph = arduino.get_ph()/10;;
+        			produit2_temperature= arduino.get_temperature()/10;
+        			produit2_ec = arduino.get_ec()/10;;
         			produit2_temps_pousse = 30*24;
         		}
         		if(strcmp(produit.c_str(), "Basilic") == 0)
         		{
-        			produit2_ph = 6;
-        			produit2_temperature = 20;
-        			produit2_ec = 12;
+        			produit2_ph = arduino.get_ph()/10;;
+        			produit2_temperature= arduino.get_temperature()/10;
+        			produit2_ec = arduino.get_ec()/10;;
         			produit2_temps_pousse = 30*24;
         		}
         	}
@@ -761,30 +821,30 @@ void Fenetre::setparametres(string produit)
         		cerr << "produit : " << produit;
         		if(strcmp(produit.c_str(), "Tomates") == 0)
         		{
-        			produit3_ph = 6;
-        			produit3_temperature = 20;
-        			produit3_ec = 12;
+        			produit3_ph = arduino.get_ph()/10;;
+        			produit3_temperature= arduino.get_temperature()/10;
+        			produit3_ec = arduino.get_ec()/10;;
         			produit3_temps_pousse = 30*24;
         		}
         		if(strcmp(produit.c_str(), "Salade") == 0)
         		{
-        			produit3_ph = 6;
-        			produit3_temperature = 20;
-        			produit3_ec = 12;
+        			produit3_ph = arduino.get_ph()/10;;
+        			produit3_temperature= arduino.get_temperature()/10;
+        			produit3_ec = arduino.get_ec()/10;;
         			produit3_temps_pousse = 30*24;
         		}
         		if(strcmp(produit.c_str(), "Fraises") == 0)
         		{
-        			produit3_ph = 6;
-        			produit3_temperature = 20;
-        			produit3_ec = 12;
+        			produit3_ph = arduino.get_ph()/10;;
+        			produit3_temperature= arduino.get_temperature()/10;
+        			produit3_ec = arduino.get_ec()/10;;
         			produit3_temps_pousse = 30*24;
         		}
         		if(strcmp(produit.c_str(), "Basilic") == 0)
         		{
-        			produit3_ph = 6;
-        			produit3_temperature = 20;
-        			produit3_ec = 12;
+        			produit3_ph = arduino.get_ph()/10;;
+        			produit3_temperature= arduino.get_temperature()/10;
+        			produit3_ec = arduino.get_ec()/10;;
         			produit3_temps_pousse = 30*24;
         		}
         	}
@@ -794,30 +854,30 @@ void Fenetre::setparametres(string produit)
         		cerr << "produit : " << produit;
         		if(strcmp(produit.c_str(), "Tomates") == 0)
         		{
-        			produit4_ph = 6;
-        			produit4_temperature = 20;
-        			produit4_ec = 12;
+        			produit4_ph = arduino.get_ph()/10;;
+        			produit4_temperature= arduino.get_temperature()/10;
+        			produit4_ec = arduino.get_ec()/10;;
         			produit4_temps_pousse = 30*24;
         		}
         		if(strcmp(produit.c_str(), "Salade") == 0)
         		{
-        			produit4_ph = 6;
-        			produit4_temperature = 20;
-        			produit4_ec = 12;
+        			produit4_ph = arduino.get_ph()/10;;
+        			produit4_temperature= arduino.get_temperature()/10;
+        			produit4_ec = arduino.get_ec()/10;;
         			produit4_temps_pousse = 30*24;
         		}
         		if(strcmp(produit.c_str(), "Fraises") == 0)
         		{
-        			produit4_ph = 6;
-        			produit4_temperature = 20;
-        			produit4_ec = 12;
+        			produit4_ph = arduino.get_ph()/10;;
+        			produit4_temperature= arduino.get_temperature()/10;
+        			produit4_ec = arduino.get_ec()/10;;
         			produit4_temps_pousse = 30*24;
         		}
         		if(strcmp(produit.c_str(), "Basilic") == 0)
         		{
-        			produit4_ph = 6;
-        			produit4_temperature = 20;
-        			produit4_ec = 12;
+        			produit4_ph = arduino.get_ph()/10;;
+        			produit4_temperature= arduino.get_temperature()/10;
+        			produit4_ec = arduino.get_ec()/10;;
         			produit4_temps_pousse = 30*24;
         		}
         	}

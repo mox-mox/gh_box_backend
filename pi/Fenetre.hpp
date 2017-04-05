@@ -87,6 +87,10 @@ class Fenetre : public Gtk::Window {
 	Gtk::HBox removeSuccessfulH_box;
 	Gtk::HBox attenteplanteH_box;
 	Gtk::VBox attenteplanteV_box;
+	Gtk::HBox demoH1_box;
+	Gtk::HBox demoH2_box;
+	Gtk::HBox demoH3_box;
+	Gtk::VBox demoV_box;
 
 
 	Gtk::Label label_newPlant1;
@@ -105,12 +109,18 @@ class Fenetre : public Gtk::Window {
 	Gtk::Label label_removeSuccessful;
 	Gtk::Label label_cancelPlant;
 	Gtk::Label label_attenteplante;
+	Gtk::Label label_demo1;
+	Gtk::Label label_demo2;
+	Gtk::Label label_demo3;
 
 
 	Gtk::Button bouton_accueil_fonctionnement;
 	Gtk::Button bouton_accueil_newPlant;
 	Gtk::Button bouton_accueil_onGoingPlant;
 	Gtk::Button bouton_accueil_seedsOrder;
+	Gtk::Button bouton_accueil_demo;
+	Gtk::Button bouton_demo_acceuil;
+	Gtk::Button bouton_demo_confirmation;
     Gtk::Button bouton1;
 	Gtk::Button bouton_fonctionnement_acceuil;
 	Gtk::Button bouton_cancelPlant;
@@ -144,12 +154,15 @@ class Fenetre : public Gtk::Window {
 	Gtk::Button bouton_attenteplante_accueil;
 	Gtk::Button bouton_attenteplante_confirmation;
 	Gtk::SpinButton spinbutton; //Bouton compteur
+	Gtk::SpinButton spin_pump_time; //Bouton compteur
+	Gtk::SpinButton spin_light_time; //Bouton compteur
+	//Gtk::SpinButton spinbutton; //Bouton compteur
+	//Gtk::SpinButton spinbutton; //Bouton compteur
 
 
 	Gtk::ComboBoxText listeDeroulante;
 	//string label_cancelPlant;
 
-	//Message_interface arduino;
 
 
 	string plantelulz;
@@ -157,25 +170,26 @@ class Fenetre : public Gtk::Window {
 	int compteur1;
 	int jeanclaude;
 
-	int produit1_ph;
-	int produit1_temperature;
-	int produit1_ec;
-	int produit1_temps_pousse;
 
-	int produit2_ph;
-	int produit2_temperature;
-	int produit2_ec;
-	int produit2_temps_pousse;
+	uint32_t produit1_ph;
+	uint32_t produit1_temperature;
+	uint32_t produit1_ec;
+	uint32_t produit1_temps_pousse;
 
-	int produit3_ph;
-	int produit3_temperature;
-	int produit3_ec;
-	int produit3_temps_pousse;
+	uint32_t produit2_ph;
+	uint32_t produit2_temperature;
+	uint32_t produit2_ec;
+	uint32_t produit2_temps_pousse;
 
-	int produit4_ph;
-	int produit4_temperature;
-	int produit4_ec;
-	int produit4_temps_pousse;
+	uint32_t produit3_ph;
+	uint32_t produit3_temperature;
+	uint32_t produit3_ec;
+	uint32_t produit3_temps_pousse;
+
+	uint32_t produit4_ph;
+	uint32_t produit4_temperature;
+	uint32_t produit4_ec;
+	uint32_t produit4_temps_pousse;
 
 	string temperature;
 	string PH;
@@ -185,6 +199,8 @@ class Fenetre : public Gtk::Window {
 	void set_current_page (int page_number);
 	void afficher();
 	void on_spinbutton_changed();
+	void on_spin_pump_time_changed();
+	void on_spin_light_time_changed();
 	void fileWrite(string produit);
 	void confirmationProduit_setLabel(string produit);
 	void onGoingPlant_setLabel();
