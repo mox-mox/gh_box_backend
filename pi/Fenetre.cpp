@@ -128,10 +128,10 @@ bouton_accueil_demo("Choisir les paramètres")
 	spin_pump_time.set_increments(1, 10);
 	spin_pump_time.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_pump_time_changed));
 
-	spin_light_time;.set_range(0, 100);
-	spin_light_time;.set_value(1);
-	spin_light_time;.set_increments(1, 10);
-	spin_light_time;.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_light_time_changed));
+	spin_light_time.set_range(0, 100);
+	spin_light_time.set_value(1);
+	spin_light_time.set_increments(1, 10);
+	spin_light_time.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_light_time_changed));
 	
 	plante1.set("tomato.png");
 	plante2.set("salade.png");
@@ -481,7 +481,7 @@ void Fenetre::on_spin_pump_time_changed()
 {
 	int value = spin_pump_time.get_value_as_int();
 }
-b
+
 void Fenetre::on_spin_light_time_changed()
 {
 	int value = spin_light_time.get_value_as_int();
