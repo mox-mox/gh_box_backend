@@ -514,7 +514,7 @@ void Fenetre::changerpage(int page) {
 	if(page==5)
 	{
 		testvalue = spinbutton.get_value_as_int();
-		cerr << "Hello" << testvalue;
+		//cerr << "Hello" << testvalue;
 		//cerr << "La valeur de jean est : " << spinbutton << "\n";
 		//cerr << "La valeur du bouton est : " << spinbutton;
 	}
@@ -545,11 +545,13 @@ void Fenetre::afficher() {
 void Fenetre::on_spinbutton_changed()
 {
 	int value = spinbutton.get_value_as_int();
+	cerr << "La valeur des spinbutton est : " << value;
 }
 
 void Fenetre::on_spin_pump_time_changed()
 {
 	int value = spin_pump_time.get_value_as_int();
+
 }
 
 void Fenetre::on_spin_light_time_changed()
