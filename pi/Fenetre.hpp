@@ -184,27 +184,18 @@ class Fenetre : public Gtk::Window {
 	int compteur;
 	int compteur1;
 	int jeanclaude;
+	int testvalue;
 
 
 	double produit1_ph;
 	uint32_t produit1_temperature;
-	uint32_t produit1_ec;
+	float produit1_ec;
+
+	double ph_voulu;
+	int temp_voulu;
+	float ec_voulu;
+
 	uint32_t produit1_temps_pousse;
-
-	uint32_t produit2_ph;
-	uint32_t produit2_temperature;
-	uint32_t produit2_ec;
-	uint32_t produit2_temps_pousse;
-
-	uint32_t produit3_ph;
-	uint32_t produit3_temperature;
-	uint32_t produit3_ec;
-	uint32_t produit3_temps_pousse;
-
-	uint32_t produit4_ph;
-	uint32_t produit4_temperature;
-	uint32_t produit4_ec;
-	uint32_t produit4_temps_pousse;
 
 	string temperature;
 	string PH;
@@ -229,6 +220,7 @@ class Fenetre : public Gtk::Window {
 	void on_spin_ph_changed();
 	string ToString(int T);
 	string ToStringd(double T);
+	string ToStringf(float T);
 
 };
 
