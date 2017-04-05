@@ -184,6 +184,7 @@ class Fenetre : public Gtk::Window {
 	int compteur;
 	int compteur1;
 	int jeanclaude;
+	int testvalue;
 
 
 	double produit1_ph;

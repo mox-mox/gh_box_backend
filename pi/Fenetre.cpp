@@ -511,6 +511,12 @@ void Fenetre::changerpage(int page) {
 		}
 	}
 
+	if(page==5)
+	{
+		testvalue = spinbutton.get_value();
+		cerr << "La valeur du bouton est : " << spinbutton ;
+	}
+
 	cerr << "\npage : " << page << " et ec : " << produit1_ec;
 	cerr << "\npage : " << page << " et ph : " << produit1_ph;
 	/*if((( page == 3) || (page == 4)) && ((produit1_ph >= (ph_voulu + 1))||(produit1_ph <= (ph_voulu - 1))))
