@@ -1,4 +1,5 @@
-#include "Fenetre.hpp"
+222222
+22222222222222222222222222222#include "Fenetre.hpp"
 
 Fenetre::Fenetre() : 
 	arduino(),
@@ -118,7 +119,7 @@ bouton_accueil_demo("Choisir les paramètres")
 	add(demoH1_box);
 	add(demoH2_box);
 	add(demoH25_box);
-	add(demoH23_box);
+	add(demoH35_box);
 	add(demoH3_box);
 	add(demoV_box);
 

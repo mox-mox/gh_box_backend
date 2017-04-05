@@ -207,6 +207,8 @@ class Fenetre : public Gtk::Window {
 	void on_spinbutton_changed();
 	void on_spin_pump_time_changed();
 	void on_spin_light_time_changed();
+	void on_spin_light_intertime_changed();
+	void on_spin_pump_intertime_changed();
 	void fileWrite(string produit);
 	void confirmationProduit_setLabel(string produit);
 	void onGoingPlant_setLabel();
