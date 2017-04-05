@@ -87,6 +87,10 @@ class Fenetre : public Gtk::Window {
 	Gtk::HBox removeSuccessfulH_box;
 	Gtk::HBox attenteplanteH_box;
 	Gtk::VBox attenteplanteV_box;
+	Gtk::HBox demoH1_box;
+	Gtk::HBox demoH2_box;
+	Gtk::HBox demoH3_box;
+	Gtk::VBox demoV_box;
 
 
 	Gtk::Label label_newPlant1;
@@ -105,12 +109,18 @@ class Fenetre : public Gtk::Window {
 	Gtk::Label label_removeSuccessful;
 	Gtk::Label label_cancelPlant;
 	Gtk::Label label_attenteplante;
+	Gtk::Label label_demo1;
+	Gtk::Label label_demo2;
+	Gtk::Label label_demo3;
 
 
 	Gtk::Button bouton_accueil_fonctionnement;
 	Gtk::Button bouton_accueil_newPlant;
 	Gtk::Button bouton_accueil_onGoingPlant;
 	Gtk::Button bouton_accueil_seedsOrder;
+	Gtk::Button bouton_accueil_demo;
+	Gtk::Button bouton_demo_acceuil;
+	Gtk::Button bouton_demo_confirmation;
     Gtk::Button bouton1;
 	Gtk::Button bouton_fonctionnement_acceuil;
 	Gtk::Button bouton_cancelPlant;
@@ -144,12 +154,15 @@ class Fenetre : public Gtk::Window {
 	Gtk::Button bouton_attenteplante_accueil;
 	Gtk::Button bouton_attenteplante_confirmation;
 	Gtk::SpinButton spinbutton; //Bouton compteur
+	Gtk::SpinButton spin_pump_time; //Bouton compteur
+	Gtk::SpinButton spin_light_time; //Bouton compteur
+	//Gtk::SpinButton spinbutton; //Bouton compteur
+	//Gtk::SpinButton spinbutton; //Bouton compteur
 
 
 	Gtk::ComboBoxText listeDeroulante;
 	//string label_cancelPlant;
 
-	//Message_interface arduino;
 
 
 	string plantelulz;

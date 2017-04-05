@@ -44,7 +44,13 @@ boutonRadio2(groupe, "Plante 2"),
 boutonRadio3(groupe, "Plante 3"),
 boutonRadio4(groupe, "Plante 4"),
 bouton_attenteplante_accueil("Annuler et retourner à l'accueil"),
-bouton_attenteplante_confirmation("Confirmer")
+bouton_attenteplante_confirmation("Confirmer"),
+bouton_demo_acceuil("Retour"),
+bouton_demo_confirmation("Valider ces paramètres"),
+label_demo1("Choisissez les paramètres de culture"),
+label_demo2("Choisissez le temps d'allumage de la pompe"),
+label_demo3("Choissiez le temps d'allumage des lumières"),
+bouton_accueil_demo("Choisir les paramètres")
 {
 	jeanclaude = 3;
 	resize(500, 285);
@@ -107,11 +113,25 @@ bouton_attenteplante_confirmation("Confirmer")
 	add(onGoingPlant2H2_box);
 	add(attenteplanteH_box);
 	add(attenteplanteV_box);
+	add(demoH1_box);
+	add(demoH2_box);
+	add(demoH3_box);
+	add(demoV_box);
 
 	spinbutton.set_range(0, 100);
 	spinbutton.set_value(1);
 	spinbutton.set_increments(1, 10);
 	spinbutton.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spinbutton_changed));
+
+	spin_pump_time.set_range(0, 100);
+	spin_pump_time.set_value(1);
+	spin_pump_time.set_increments(1, 10);
+	spin_pump_time.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_pump_time_changed));
+
+	spin_light_time;.set_range(0, 100);
+	spin_light_time;.set_value(1);
+	spin_light_time;.set_increments(1, 10);
+	spin_light_time;.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_light_time_changed));
 	
 	plante1.set("tomato.png");
 	plante2.set("salade.png");
@@ -122,11 +142,6 @@ bouton_attenteplante_confirmation("Confirmer")
 	validate.set("validate.png");
 	validate2.set("validate.png");
 	erreur.set("erreur.png");
-
-	acceuil_box.pack_start(bouton_accueil_fonctionnement);
-	acceuil_box.pack_start(bouton_accueil_newPlant);
-	acceuil_box.pack_start(bouton_accueil_onGoingPlant);
-	acceuil_box.pack_start(bouton_accueil_seedsOrder);
 
 	fonctionnement_box.pack_start(label_fonctionnement);
 	fonctionnement_box.pack_start(bouton_fonctionnement_acceuil);
@@ -237,6 +252,29 @@ bouton_attenteplante_confirmation("Confirmer")
 
 	attenteplanteV_box.pack_start(label_attenteplante);
 	attenteplanteV_box.pack_start(attenteplanteH_box);
+
+	demoH1_box.pack_start(label_demo2);
+	demoH1_box.pack_start(spin_pump_time);
+
+	demoH2_box.pack_start(label_demo3);
+	demoH2_box.pack_start(spin_light_time);
+
+	demoH3_box.pack_start(bouton_demo_acceuil);
+	demoH3_box.pack_start(bouton_demo_confirmation);
+
+	demoV_box.pack_start(label_demo1);
+	demoV_box.pack_start(demoH1_box);
+	demoV_box.pack_start(demoH2_box);
+	demoV_box.pack_start(demoH3_box);
+
+
+	acceuil_box.pack_start(bouton_accueil_fonctionnement);
+	acceuil_box.pack_start(bouton_accueil_newPlant);
+	acceuil_box.pack_start(bouton_accueil_onGoingPlant);
+	acceuil_box.pack_start(bouton_accueil_demo);
+	acceuil_box.pack_start(bouton_accueil_seedsOrder);
+
+
 
 	listeDeroulante.append("Tomates");
 	listeDeroulante.append("Fraise");
@@ -373,6 +411,11 @@ bouton_attenteplante_confirmation("Confirmer")
     //Ajout de l'onglet 14 avec "Retrait réussi" écrit sur l'onglet.
     barreOnglets.append_page(removeSuccessfulV_box, "Retrait réussi");
     bouton_removeSuccessful_acceuil.signal_clicked().connect(sigc::bind<int>(sigc::mem_fun(*this, &Fenetre::changerpage), 1));
+
+    //Ajout de l'onglet 15 avec "Parametres" écrit sur l'onglet.
+    barreOnglets.append_page(demoV_box, "Paramètres");
+    bouton_demo_acceuil.signal_clicked().connect(sigc::bind<int>(sigc::mem_fun(*this, &Fenetre::changerpage), 1));
+    bouton_demo_confirmation.signal_clicked().connect(sigc::bind<int>(sigc::mem_fun(*this, &Fenetre::changerpage), 1));
  	
 
     barreOnglets.set_show_tabs(false);
