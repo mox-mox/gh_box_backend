@@ -54,7 +54,7 @@ label_demo25("Choisissez le temps entre 2 activations de la pompe (en minutes)")
 label_demo35("Choisissez le temps entre 2 allumages des lumières (en heures)"),
 label_demo4("Choisissez le PH"),
 label_demo5("Choisissez l'electroconductivité"),
-label_demo6("Choisissez la température"),
+label_demo6("Choisissez la température (en °C)"),
 bouton_accueil_demo("Choisir les paramètres")
 {
 	jeanclaude = 3;
@@ -158,13 +158,13 @@ bouton_accueil_demo("Choisir les paramètres")
 	spin_ec.set_increments(1, 10);
 	spin_ec.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_ec_changed));
 
-	spin_ph.set_range(0, 24);
-	spin_ph.set_value(24);
+	spin_ph.set_range(0, 14);
+	spin_ph.set_value(7);
 	spin_ph.set_increments(1, 10);
 	spin_ph.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_ph_changed));
 
-	spin_temp.set_range(0, 24);
-	spin_temp.set_value(24);
+	spin_temp.set_range(0, 30);
+	spin_temp.set_value(20);
 	spin_temp.set_increments(1, 10);
 	spin_temp.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_temp_changed));
 
@@ -508,7 +508,7 @@ void Fenetre::changerpage(int page) {
 
 	cerr << "\npage : " << page << " et ec : " << produit1_ec;
 	cerr << "\npage : " << page << " et ph : " << produit1_ph;
-	if((( page == 3) || (page == 4)) && ((produit1_ph >= 7)||(produit1_ph <= 5 )))
+	/*if((( page == 3) || (page == 4)) && ((produit1_ph >= 7)||(produit1_ph <= 5 )))
 	{
 		page = 8;
 	}
@@ -516,7 +516,7 @@ void Fenetre::changerpage(int page) {
 	if((( page == 3) || (page == 4)) && ((produit1_ec >= 15)||(produit1_ec <= 5 )))
 	{
 		page = 12;
-	}
+	}*/
 
 
 	barreOnglets.set_current_page (page);
