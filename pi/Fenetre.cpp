@@ -477,6 +477,18 @@ void Fenetre::on_spinbutton_changed()
 	int value = spinbutton.get_value_as_int();
 }
 
+void Fenetre::on_spin_pump_time_changed()
+{
+	int value = spin_pump_time.get_value_as_int();
+}
+b
+void Fenetre::on_spin_light_time_changed()
+{
+	int value = spin_light_time.get_value_as_int();
+}
+
+
+
 void Fenetre::compterligne()
 {
 	compteur = 0;
