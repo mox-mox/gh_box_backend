@@ -513,12 +513,12 @@ void Fenetre::changerpage(int page) {
 
 	cerr << "\npage : " << page << " et ec : " << produit1_ec;
 	cerr << "\npage : " << page << " et ph : " << produit1_ph;
-	if((( page == 3) || (page == 4)) && ((produit1_ph >= (ph_voulu + 1))||(produit1_ph <= (ph_voulu - 1)))
+	if((( page == 3) || (page == 4)) && ((produit1_ph >= (ph_voulu + 1))||(produit1_ph <= (ph_voulu - 1))))
 	{
 		page = 8;
 	}
 
-	if((( page == 3) || (page == 4)) && ((produit1_ec >= (ec_voulu + 0.25))||(produit1_ec <= (ec_voulu - 0.25)))
+	if((( page == 3) || (page == 4)) && ((produit1_ec >= (ec_voulu + 0.25))||(produit1_ec <= (ec_voulu - 0.25))))
 	{
 		page = 12;
 	}
@@ -859,7 +859,7 @@ void Fenetre::setparametres(string produit)
         			cerr << "compteur == 0 et fraise" << endl;
         			ph_voulu = 5.5 ;
         			temp_voulu = 20;
-        			ec_voulu = 0.75
+        			ec_voulu = 0.75;
         			//produit1_temps_pousse = 30*24;
         		}
         		if(strcmp(produit.c_str(), "Basilic") == 0)

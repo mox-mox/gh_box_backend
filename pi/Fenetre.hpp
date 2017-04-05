@@ -219,7 +219,7 @@ class Fenetre : public Gtk::Window {
 	void on_spin_ph_changed();
 	string ToString(int T);
 	string ToStringd(double T);
-	string ToStringd(float T);
+	string ToStringf(float T);
 
 };
 
