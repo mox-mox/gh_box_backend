@@ -286,10 +286,10 @@ bouton_accueil_demo("Choisir les paramètres")
 
 	demoV_box.pack_start(label_demo1);
 	demoV_box.pack_start(demoH1_box);
-	demoV_box.pack_start(demoH2_box);
 	demoV_box.pack_start(demoH25_box);
-	demoV_box.pack_start(demoH3_box);
+	demoV_box.pack_start(demoH2_box);
 	demoV_box.pack_start(demoH35_box);
+	demoV_box.pack_start(demoH3_box);
 
 
 	acceuil_box.pack_start(bouton_accueil_fonctionnement);
