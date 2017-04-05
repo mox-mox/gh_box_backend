@@ -21,8 +21,9 @@ extern Temp_sensor              temp;
 #define LAMP_PIN                     10 // TODO: Insert correct value
 
 #define TEMP_PIN                     2  
-#define PH_PIN                       A0 // TODO: Insert correct value
+#define PH_PIN                       0 // TODO: Insert correct value
 #define EC_PIN                       0 // TODO: Insert correct value
+#define EC_TEMP_PIN                  0
 
 
 // Default times, all in milliseconds

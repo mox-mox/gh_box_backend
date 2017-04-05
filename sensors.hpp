@@ -63,16 +63,9 @@ class Temp_sensor: public Sensor
 
 	uint32_t measure(void) const override	// The temperature sensor is measured differently
 	{
-		int t2;
-// Send the command to get temperatures
-  sensor_backend.requestTemperatures();  
-  //Serial.print("Temperature is: ");
- 
- // Why "byIndex"? You can have more than one IC on the same bus. 0 refers to the first IC on the wire
-  float t1=sensor_backend.getTempCByIndex(0)*10;
-  t2= (int) t1;
- 
- return t2;
+		sensor_backend.requestTemperatures();
+		return static_cast<uint32_t>(sensor_backend.getTempCByIndex(0)*10);
+		//return 255;
 	}
 
 	void process(uint32_t measure)
@@ -161,8 +154,7 @@ class EC_sensor: public Sensor
 
 	uint32_t measure(void) const	// Return the current sensor read out
 	{
-		//return analogRead(sensing_pin);
-		return 0x44;
+		
 	}
 	// Some stuff like an array for low-pass filtering, etc.
 
@@ -195,11 +187,10 @@ class PH_sensor: public Sensor
 {
 	using Sensor::Sensor;
 	// Some stuff like an array for low-pass filtering, etc.
-
   
 	uint32_t measure(void) const// Return the current sensor read out
 	{
-
+  
  unsigned long int avgValue;  //Store the average value of the sensor feedback
  float b;
  int buf[10],temp;
@@ -223,15 +214,15 @@ class PH_sensor: public Sensor
   }
   avgValue=0;
   for(int i=2;i<8;i++)                      //take the average value of 6 center sample
-    avgValue+=buf[i];
+   avgValue+=buf[i];
   float phValue=(float)avgValue*5.0/1024/6; //convert the analog into millivolt
-	 phValue=3.5*phValue;                      //convert the millivolt into pH value
-  //Serial.print("    pH:");  
-  //Serial.print(phValue,2);
-  //Serial.println(" ");
+  phValue=3.5*phValue;
+  int casted_ph_value=(int) (phValue*10);
+  return casted_ph_value;
   digitalWrite(13, HIGH);       
-  delay(800);
-  digitalWrite(13, LOW); 
+  delay(100);
+  digitalWrite(13, LOW);
+
 	}
 
 	void process(uint32_t measure)
