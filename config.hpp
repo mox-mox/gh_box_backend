@@ -3,6 +3,9 @@
 
 #include "sensors.hpp"
 #include "actuators.hpp"
+
+
+
 extern Periodic_actuator        pump;
 extern Periodic_actuator        lamp;
 
@@ -48,6 +51,9 @@ extern Temp_sensor              temp;
 // constants won't change. Used here to set a pin number :
 #define ledPin 13      // the number of the LED pin
 extern int ledState;
+
+
+
 
 
 

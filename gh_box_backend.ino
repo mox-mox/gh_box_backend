@@ -1,16 +1,16 @@
 #include "config.hpp"
-#include "sensors.hpp"
-
+//#include "sensors.hpp"
 
 
 Periodic_actuator        pump(PUMP_PIN, PUMP_PERIOD, PUMP_DUTY_CYCLE);
 Periodic_actuator        lamp(LAMP_PIN, LAMP_PERIOD, LAMP_DUTY_CYCLE);
 
 PH_sensor                ph(PH_PIN, SAMPLING_PERIOD_PH);
-EC_sensor                ec(EC_PIN, SAMPLING_PERIOD_EC);
+EC_sensor                ec(EC_PIN, EC_TEMP_PIN, SAMPLING_PERIOD_EC);
 Temp_sensor              temp(TEMP_PIN, HEATER_PIN, FAN_PIN, SAMPLING_PERIOD_TEMP, NOMINAL_TEMP, TEMP_MARGIN);
 
 Message_interface        communicate;
+
 
 int ledState = 0;
 
@@ -24,7 +24,6 @@ void setup(void)
 	pinMode(HEATER_PIN,OUTPUT);//HEATHER
 	pinMode(PUMP_PIN,OUTPUT);//PUMP
 	pinMode(LAMP_PIN ,OUTPUT);//LED
-
 
 	ledState = 0;
 	digitalWrite(ledPin, ledState);
