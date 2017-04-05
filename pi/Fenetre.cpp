@@ -163,10 +163,10 @@ bouton_accueil_demo("Choisir les paramètres")
 	spin_ph.set_increments(1, 10);
 	spin_ph.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_ph_changed));
 
-	spin_light_temp.set_range(0, 24);
-	spin_light_temp.set_value(24);
-	spin_light_temp.set_increments(1, 10);
-	spin_light_temp.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_temp_changed));
+	spin_temp.set_range(0, 24);
+	spin_temp.set_value(24);
+	spin_temp.set_increments(1, 10);
+	spin_temp.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_temp_changed));
 
 	
 	plante1.set("tomato.png");
