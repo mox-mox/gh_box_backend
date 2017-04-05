@@ -48,8 +48,13 @@ bouton_attenteplante_confirmation("Confirmer"),
 bouton_demo_acceuil("Retour"),
 bouton_demo_confirmation("Valider ces paramètres"),
 label_demo1("Choisissez les paramètres de culture"),
-label_demo2("Choisissez le temps d'allumage de la pompe"),
-label_demo3("Choissiez le temps d'allumage des lumières"),
+label_demo2("Choisissez le temps d'allumage de la pompe (en minutes)"),
+label_demo3("Choisissez le temps d'allumage des lumières (en heures)"),
+label_demo25("Choisissez le temps entre 2 activations de la pompe (en minutes)"),
+label_demo35("Choisissez le temps entre 2 allumages des lumières (en heures)"),
+label_demo4("Choisissez le PH"),
+label_demo5("Choisissez l'electroconductivité"),
+label_demo6("Choisissez la température (en °C)"),
 bouton_accueil_demo("Choisir les paramètres")
 {
 	jeanclaude = 3;
@@ -60,7 +65,7 @@ bouton_accueil_demo("Choisir les paramètres")
 	produit1_ec= arduino.get_ec()/10;
 	//std::cout<<"++++++++++++++++ temp = "<<temp<<"+++++++++++++++++++++++++"<<std::endl;
 
-	produit1_ph= arduino.get_ph()/10;
+	produit1_ph= static_cast<double>(arduino.get_ph())/1000;
 	//std::cout<<"++++++++++++++++ temp = "<<temp<<"+++++++++++++++++++++++++"<<std::endl;
 
 	produit1_temperature= arduino.get_temperature()/10;
@@ -115,7 +120,12 @@ bouton_accueil_demo("Choisir les paramètres")
 	add(attenteplanteV_box);
 	add(demoH1_box);
 	add(demoH2_box);
+	add(demoH25_box);
+	add(demoH35_box);
 	add(demoH3_box);
+	add(demoH4_box);
+	add(demoH5_box);
+	add(demoH6_box);
 	add(demoV_box);
 
 	spinbutton.set_range(0, 100);
@@ -132,6 +142,32 @@ bouton_accueil_demo("Choisir les paramètres")
 	spin_light_time.set_value(1);
 	spin_light_time.set_increments(1, 10);
 	spin_light_time.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_light_time_changed));
+
+	spin_pump_intertime.set_range(0, 60);
+	spin_pump_intertime.set_value(15);
+	spin_pump_intertime.set_increments(1, 10);
+	spin_pump_intertime.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_pump_intertime_changed));
+
+	spin_light_intertime.set_range(0, 24);
+	spin_light_intertime.set_value(24);
+	spin_light_intertime.set_increments(1, 10);
+	spin_light_intertime.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_light_intertime_changed));
+
+	spin_ec.set_range(0, 24);
+	spin_ec.set_value(24);
+	spin_ec.set_increments(1, 10);
+	spin_ec.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_ec_changed));
+
+	spin_ph.set_range(0, 14);
+	spin_ph.set_value(7);
+	spin_ph.set_increments(1, 10);
+	spin_ph.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_ph_changed));
+
+	spin_temp.set_range(0, 30);
+	spin_temp.set_value(20);
+	spin_temp.set_increments(1, 10);
+	spin_temp.signal_changed().connect(sigc::mem_fun(*this, &Fenetre::on_spin_temp_changed));
+
 	
 	plante1.set("tomato.png");
 	plante2.set("salade.png");
@@ -259,12 +295,32 @@ bouton_accueil_demo("Choisir les paramètres")
 	demoH2_box.pack_start(label_demo3);
 	demoH2_box.pack_start(spin_light_time);
 
+	demoH25_box.pack_start(label_demo25);
+	demoH25_box.pack_start(spin_pump_intertime);
+
+	demoH35_box.pack_start(label_demo35);
+	demoH35_box.pack_start(spin_light_intertime);
+
+	demoH4_box.pack_start(label_demo4);
+	demoH4_box.pack_start(spin_ph);
+
+	demoH5_box.pack_start(label_demo5);
+	demoH5_box.pack_start(spin_ec);
+
+	demoH6_box.pack_start(label_demo6);
+	demoH6_box.pack_start(spin_temp);
+
 	demoH3_box.pack_start(bouton_demo_acceuil);
 	demoH3_box.pack_start(bouton_demo_confirmation);
 
 	demoV_box.pack_start(label_demo1);
 	demoV_box.pack_start(demoH1_box);
+	demoV_box.pack_start(demoH25_box);
 	demoV_box.pack_start(demoH2_box);
+	demoV_box.pack_start(demoH35_box);
+	demoV_box.pack_start(demoH4_box);
+	demoV_box.pack_start(demoH5_box);
+	demoV_box.pack_start(demoH6_box);
 	demoV_box.pack_start(demoH3_box);
 
 
@@ -452,7 +508,7 @@ void Fenetre::changerpage(int page) {
 
 	cerr << "\npage : " << page << " et ec : " << produit1_ec;
 	cerr << "\npage : " << page << " et ph : " << produit1_ph;
-	if((( page == 3) || (page == 4)) && ((produit1_ph >= 7)||(produit1_ph <= 5 )))
+	/*if((( page == 3) || (page == 4)) && ((produit1_ph >= 7)||(produit1_ph <= 5 )))
 	{
 		page = 8;
 	}
@@ -460,7 +516,7 @@ void Fenetre::changerpage(int page) {
 	if((( page == 3) || (page == 4)) && ((produit1_ec >= 15)||(produit1_ec <= 5 )))
 	{
 		page = 12;
-	}
+	}*/
 
 
 	barreOnglets.set_current_page (page);
@@ -486,6 +542,31 @@ void Fenetre::on_spin_pump_time_changed()
 void Fenetre::on_spin_light_time_changed()
 {
 	int value = spin_light_time.get_value_as_int();
+}
+
+void Fenetre::on_spin_pump_intertime_changed()
+{
+	int value = spin_light_intertime.get_value_as_int();
+}
+
+void Fenetre::on_spin_light_intertime_changed()
+{
+	int value = spin_light_intertime.get_value_as_int();
+}
+
+void Fenetre::on_spin_ph_changed()
+{
+	int value = spin_light_intertime.get_value_as_int();
+}
+
+void Fenetre::on_spin_ec_changed()
+{
+	int value = spin_light_intertime.get_value_as_int();
+}
+
+void Fenetre::on_spin_temp_changed()
+{
+	int value = spin_light_intertime.get_value_as_int();
 }
 
 
@@ -647,6 +728,9 @@ void Fenetre::onGoingPlant_setLabel()
     	string bigligne;
     	string bigline2;
     	int compteur = 0;
+    	produit1_ph= static_cast<double>(arduino.get_ph())/1000;
+        produit1_temperature= arduino.get_temperature()/10;
+        produit1_ec = arduino.get_ec()/10;;
     	temperature = ToString(produit1_temperature);
     	PH = ToString(produit1_ph);
     	EC = ToString(produit1_ec);
