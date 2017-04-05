@@ -64,7 +64,7 @@ class Temp_sensor: public Sensor
 	uint32_t measure(void) const override	// The temperature sensor is measured differently
 	{
 		sensor_backend.requestTemperatures();
-		return static_cast<uint32_t>(sensor_backend.getTempCByIndex(0)*10);
+		return static_cast < uint32_t > (sensor_backend.getTempCByIndex(0)*10);
 		//return 255;
 	}
 
@@ -95,50 +95,50 @@ class Temp_sensor: public Sensor
 	}
 
 	public:
-	Actuator heater;
-	Actuator fan;
+		Actuator heater;
+		Actuator fan;
 
-	Temp_sensor(uint8_t sensing_pin,
-			uint8_t heater_pin,
-			uint8_t fan_pin,
-			uint32_t sampling_period,
-			uint32_t nominal_temperature,
-			uint32_t temperature_plus_margin = 0,
-			uint32_t temperature_minus_margin = 0) : Sensor(sensing_pin, sampling_period),
-	nominal_temperature(nominal_temperature),
-	temperature_plus_margin(temperature_plus_margin ? temperature_plus_margin : 100),
-	temperature_minus_margin(temperature_minus_margin ? temperature_minus_margin : (temperature_plus_margin ? temperature_plus_margin : 100)),
-	one_wire_interface(sensing_pin),
-	sensor_backend(&one_wire_interface),
-	heater(heater_pin),
-	fan(fan_pin)
-	{}
+		Temp_sensor(uint8_t sensing_pin,
+		            uint8_t heater_pin,
+		            uint8_t fan_pin,
+		            uint32_t sampling_period,
+		            uint32_t nominal_temperature,
+		            uint32_t temperature_plus_margin = 0,
+		            uint32_t temperature_minus_margin = 0) : Sensor(sensing_pin, sampling_period),
+			nominal_temperature(nominal_temperature),
+			temperature_plus_margin(temperature_plus_margin ? temperature_plus_margin : 100),
+			temperature_minus_margin(temperature_minus_margin ? temperature_minus_margin : (temperature_plus_margin ? temperature_plus_margin : 100)),
+			one_wire_interface(sensing_pin),
+			sensor_backend(&one_wire_interface),
+			heater(heater_pin),
+			fan(fan_pin)
+		{}
 
-	void set_nominal_temperature(uint32_t temperature)
-	{
-		nominal_temperature = temperature;
-	}
-	void set_plus_margin(uint32_t margin)
-	{
-		temperature_plus_margin = margin;
-	}
-	void set_minus_margin(uint32_t margin)
-	{
-		temperature_minus_margin = margin;
-	}
+		void set_nominal_temperature(uint32_t temperature)
+		{
+			nominal_temperature = temperature;
+		}
+		void set_plus_margin(uint32_t margin)
+		{
+			temperature_plus_margin = margin;
+		}
+		void set_minus_margin(uint32_t margin)
+		{
+			temperature_minus_margin = margin;
+		}
 
-	uint32_t get_nominal_temperature(void)
-	{
-		return nominal_temperature;
-	}
-	uint32_t get_plus_margin(void)
-	{
-		return temperature_plus_margin;
-	}
-	uint32_t get_minus_margin(void)
-	{
-		return temperature_minus_margin;
-	}
+		uint32_t get_nominal_temperature(void)
+		{
+			return nominal_temperature;
+		}
+		uint32_t get_plus_margin(void)
+		{
+			return temperature_plus_margin;
+		}
+		uint32_t get_minus_margin(void)
+		{
+			return temperature_minus_margin;
+		}
 };
 //}}}
 
@@ -151,11 +151,40 @@ class EC_sensor: public Sensor
 	// Let's track their amount as a current offset
 	// Static because offset will be the same for all sensors
 	static int32_t current_offset;
+	//{{{ class Temp_sensor
+
+	class Temp_sensor: public Sensor
+	{
+		OneWire one_wire_interface;	//(ONE_WIRE_BUS);
+		DallasTemperature sensor_backend;	//(&oneWire);
+
+		// Some stuff like an array for low-pass filtering, etc.
+
+		uint32_t measure(void) const override	// The temperature sensor is measured differently
+		{
+			sensor_backend.requestTemperatures();
+			return static_cast < uint32_t > (sensor_backend.getTempCByIndex(0)*10);
+			//return 255;
+		}
+
+		void process(uint32_t measure)
+		{
+			// TODO filter
+			value = measure;
+		}
+
+		public:
+			Temp_sensor(uint8_t sensing_pin, uint32_t sampling_period) :
+				Sensor(sensing_pin, sampling_period),
+				one_wire_interface(sensing_pin),
+				sensor_backend(&one_wire_interface)
+			{}
+	};
+	//}}}
+	Temp_sensor my_temperature_sensor;
 
 	uint32_t measure(void) const	// Return the current sensor read out
-	{
-
-	}
+	{}
 	// Some stuff like an array for low-pass filtering, etc.
 
 	void process(uint32_t measure)
@@ -164,18 +193,22 @@ class EC_sensor: public Sensor
 		value = measure;
 	}
 	public:
-	static void add_offset(int32_t offset)
-	{
-		current_offset += offset;
-	}
-	static void set_offset(int32_t offset)
-	{
-		current_offset = offset;
-	}
-	static int32_t get_offset(void)
-	{
-		return current_offset;
-	}
+		EC_sensor(uint8_t sensing_pin, uint8_t temp_sensing_pin, uint32_t sampling_period) :
+			Sensor(sensing_pin, sampling_period),
+			my_temperature_sensor(temp_sensing_pin, sampling_period)
+		{}
+		static void add_offset(int32_t offset)
+		{
+			current_offset += offset;
+		}
+		static void set_offset(int32_t offset)
+		{
+			current_offset = offset;
+		}
+		static int32_t get_offset(void)
+		{
+			return current_offset;
+		}
 };
 
 int32_t EC_sensor::current_offset = 77;
@@ -192,9 +225,10 @@ class PH_sensor: public Sensor
 	{
 		static constexpr uint8_t num_samples = 5;
 
-		uint32_t avgValue=0;
-		for(int i=0;i<num_samples;i++)
-		{ 
+		uint32_t avgValue = 0;
+
+		for( int i = 0; i < num_samples; i++ )
+		{
 			avgValue += analogRead(sensing_pin);
 			delay(10);
 		}
