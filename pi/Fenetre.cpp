@@ -728,11 +728,12 @@ void Fenetre::onGoingPlant_setLabel()
     	string bigligne;
     	string bigline2;
     	int compteur = 0;
-    	produit1_ph= static_cast<double>(arduino.get_ph())/1000;
-        produit1_temperature= arduino.get_temperature()/10;
+    	produit1_ph= static_cast<double>(arduino.get_ph())/1000.0;
+    	cerr << "Produit1ph : " << produit1_ph;
+        produit1_temperature = arduino.get_temperature()/10;
         produit1_ec = arduino.get_ec()/10;;
     	temperature = ToString(produit1_temperature);
-    	PH = ToString(produit1_ph);
+    	PH = ToStringd(produit1_ph);
     	EC = ToString(produit1_ec);
 
     	bigline2 = "\n\n Temperature : " + temperature + "\n Electro-conductivité : " + EC +"\n PH : "  + PH;
@@ -981,3 +982,11 @@ string Fenetre::ToString(int T)
     stream << T;
     return stream.str();
 }
+
+string Fenetre::ToStringd(double T)
+{
+    stringstream stream;
+    stream << T;
+    return stream.str();
+}
+
